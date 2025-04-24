@@ -1,0 +1,91 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# Visual Studio Code related
+.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+pubspec.lock
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# Firebase configuration files
+**/android/app/google-services.json
+**/ios/Runner/GoogleService-Info.plist
+**/ios/firebase_app_id_file.json
+**/lib/firebase_options.dart
+
+# Supabase configuration files
+.env
+.env.*
+*.env
+**/lib/supabase_options.dart
+
+# Web related files
+.firebase/
+.firebaserc
+firebase.json
+
+# Generated files
+*.g.dart
+*.freezed.dart
+
+# Coverage and test artifacts
+/coverage/
+.test_coverage.dart
+/test/var/
+
+# Local configuration files
+local.properties
+
+# Keystore files
+*.jks
+*.keystore
+key.properties
+
+# Flutter Version Management (fvm)
+.fvm/
+
+# fastlane specific
+**/fastlane/report.xml
+**/fastlane/Preview.html
+**/fastlane/screenshots
+**/fastlane/test_output
+
+# Avoid including large assets in the repository
+# Uncomment if you have large assets that shouldn't be versioned
+# /assets/large_assets/
