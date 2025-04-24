@@ -1,15 +1,5 @@
 # Resbite App
 
-A clean, modern Flutter application for organizing and joining activities with families in your area.
-
-## Overview
-
-Resbite is a social platform that helps families connect through shared activities. The app allows users to:
-
-- Browse activities by category
-- Create and join "resbites" (activity events)
-- Connect with other families
-- Share experiences
 
 ## Architecture
 
@@ -20,18 +10,7 @@ The app is built with a clean architecture approach, using:
 - **Supabase** for database and storage
 - **Riverpod** for state management
 - **Freezed** for immutable data models
-
-## Project Structure
-
-```
-lib/
-├── config/          # App configuration (constants, routes, theme)
-├── models/          # Data models
-├── services/        # Services (auth, database, etc.)
-├── ui/
-│   ├── components/  # Reusable UI components
-│   └── screens/     # App screens
-└── utils/           # Utility functions and helpers
+  
 ```
 
 ## Getting Started
