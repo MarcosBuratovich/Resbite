@@ -6,6 +6,7 @@ import '../../../config/constants.dart';
 import '../../../config/theme.dart';
 import '../../../models/activity.dart';
 import '../../../models/resbite.dart';
+import '../../../models/resbite_filter.dart';
 import '../../../models/user.dart' as app_user;
 import '../../../services/providers.dart';
 import '../../../utils/logger.dart';
@@ -19,10 +20,7 @@ final resbiteDataProvider = StateProvider<Map<String, dynamic>>((ref) => {});
 class StartResbiteScreen extends ConsumerStatefulWidget {
   final String? activityId;
 
-  const StartResbiteScreen({
-    super.key,
-    this.activityId,
-  });
+  const StartResbiteScreen({super.key, this.activityId});
 
   @override
   ConsumerState<StartResbiteScreen> createState() => _StartResbiteScreenState();
@@ -36,7 +34,7 @@ class _StartResbiteScreenState extends ConsumerState<StartResbiteScreen> {
   void initState() {
     super.initState();
     _pageController = PageController();
-    
+
     // Initialize resbite data with activity ID if provided
     if (widget.activityId != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -45,24 +43,24 @@ class _StartResbiteScreenState extends ConsumerState<StartResbiteScreen> {
           ...resbiteData.state,
           'activityId': widget.activityId,
         };
-        
+
         // Pre-load the activity data
         _loadActivityData(widget.activityId!);
       });
     }
-    
+
     // Check authentication status after build
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkAuthStatus();
     });
   }
-  
+
   // Helper method to pre-load the activity data
   Future<void> _loadActivityData(String activityId) async {
     try {
       // Load the activity data from the provider
       final activity = await ref.read(activityProvider(activityId).future);
-      
+
       if (activity != null && mounted) {
         // Update resbite data with the activity
         final resbiteData = ref.read(resbiteDataProvider.notifier);
@@ -77,7 +75,7 @@ class _StartResbiteScreenState extends ConsumerState<StartResbiteScreen> {
       print('Error pre-loading activity: $e');
     }
   }
-  
+
   void _checkAuthStatus() {
     final authService = ref.read(authServiceProvider);
     if (authService.status != AuthStatus.authenticated) {
@@ -86,19 +84,24 @@ class _StartResbiteScreenState extends ConsumerState<StartResbiteScreen> {
         showDialog(
           context: context,
           barrierDismissible: false,
-          builder: (context) => AlertDialog(
-            title: const Text('Authentication Required'),
-            content: const Text('You must be logged in to create a resbite.'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(); // Close dialog
-                  Navigator.of(context).pushReplacementNamed('/login'); // Go to login
-                },
-                child: const Text('Log In'),
+          builder:
+              (context) => AlertDialog(
+                title: const Text('Authentication Required'),
+                content: const Text(
+                  'You must be logged in to create a resbite.',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(); // Close dialog
+                      Navigator.of(
+                        context,
+                      ).pushReplacementNamed('/login'); // Go to login
+                    },
+                    child: const Text('Log In'),
+                  ),
+                ],
               ),
-            ],
-          ),
         );
       }
     }
@@ -119,18 +122,14 @@ class _StartResbiteScreenState extends ConsumerState<StartResbiteScreen> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.of(context).pushReplacementNamed('/login');
       });
-      
+
       // Show loading screen while redirecting
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
-    
+
     // Get the current step
     final currentStep = ref.watch(resbiteCreationStepProvider);
-    
+
     // Create pages if they haven't been created yet
     if (_pages.isEmpty) {
       _pages.addAll([
@@ -155,23 +154,26 @@ class _StartResbiteScreenState extends ConsumerState<StartResbiteScreen> {
                 // Show confirmation dialog
                 showDialog(
                   context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text('Discard Resbite?'),
-                    content: const Text('Are you sure you want to discard this resbite?'),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: const Text('Cancel'),
+                  builder:
+                      (context) => AlertDialog(
+                        title: const Text('Discard Resbite?'),
+                        content: const Text(
+                          'Are you sure you want to discard this resbite?',
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: const Text('Cancel'),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text('Discard'),
+                          ),
+                        ],
                       ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                          Navigator.of(context).pop();
-                        },
-                        child: const Text('Discard'),
-                      ),
-                    ],
-                  ),
                 );
               },
             ),
@@ -191,15 +193,18 @@ class _StartResbiteScreenState extends ConsumerState<StartResbiteScreen> {
                   margin: const EdgeInsets.symmetric(horizontal: 4),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: index == currentStep 
-                        ? Theme.of(context).colorScheme.primary 
-                        : Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                    color:
+                        index == currentStep
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(
+                              context,
+                            ).colorScheme.primary.withOpacity(0.3),
                   ),
                 );
               }),
             ),
           ),
-          
+
           // Page content
           Expanded(
             child: PageView(
@@ -211,7 +216,7 @@ class _StartResbiteScreenState extends ConsumerState<StartResbiteScreen> {
               children: _pages,
             ),
           ),
-          
+
           // Navigation buttons
           Padding(
             padding: const EdgeInsets.all(16.0),
@@ -233,13 +238,15 @@ class _StartResbiteScreenState extends ConsumerState<StartResbiteScreen> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
                     ),
                     child: const Text('Back'),
                   )
                 else
                   const SizedBox(width: 100), // Placeholder for spacing
-                
                 // Next/Finish button
                 ElevatedButton(
                   onPressed: () {
@@ -248,7 +255,7 @@ class _StartResbiteScreenState extends ConsumerState<StartResbiteScreen> {
                       // The ReviewPage handles the submission
                       return;
                     }
-                    
+
                     // Otherwise, go to the next page
                     _pageController.nextPage(
                       duration: const Duration(milliseconds: 300),
@@ -262,7 +269,10 @@ class _StartResbiteScreenState extends ConsumerState<StartResbiteScreen> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
                   ),
                   child: Text(
                     currentStep == _pages.length - 1 ? 'Create' : 'Next',
@@ -286,7 +296,8 @@ class ActivitySelectionPage extends ConsumerStatefulWidget {
   const ActivitySelectionPage({super.key});
 
   @override
-  ConsumerState<ActivitySelectionPage> createState() => _ActivitySelectionPageState();
+  ConsumerState<ActivitySelectionPage> createState() =>
+      _ActivitySelectionPageState();
 }
 
 class _ActivitySelectionPageState extends ConsumerState<ActivitySelectionPage> {
@@ -301,14 +312,14 @@ class _ActivitySelectionPageState extends ConsumerState<ActivitySelectionPage> {
   Future<void> _loadActivity() async {
     final resbiteData = ref.read(resbiteDataProvider);
     final activityId = resbiteData['activityId'] as String?;
-    
+
     if (activityId != null) {
       final activity = await ref.read(activityProvider(activityId).future);
       if (activity != null && mounted) {
         setState(() {
           _selectedActivity = activity;
         });
-        
+
         // Update resbite data
         final resbiteData = ref.read(resbiteDataProvider.notifier);
         resbiteData.state = {
@@ -329,9 +340,9 @@ class _ActivitySelectionPageState extends ConsumerState<ActivitySelectionPage> {
         children: [
           Text(
             'Select an Activity',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text(
@@ -339,11 +350,10 @@ class _ActivitySelectionPageState extends ConsumerState<ActivitySelectionPage> {
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 24),
-          
+
           // Selected activity card
-          if (_selectedActivity != null)
-            _buildSelectedActivityCard(),
-            
+          if (_selectedActivity != null) _buildSelectedActivityCard(),
+
           // Activity selection grid
           _buildActivityGrid(),
         ],
@@ -366,29 +376,30 @@ class _ActivitySelectionPageState extends ConsumerState<ActivitySelectionPage> {
                 color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: _selectedActivity!.imageUrl != null
-                  ? ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.network(
-                        _selectedActivity!.imageUrl!,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Icon(
-                            Icons.image,
-                            size: 40,
-                            color: Theme.of(context).colorScheme.primary,
-                          );
-                        },
+              child:
+                  _selectedActivity!.imageUrl != null
+                      ? ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.network(
+                          _selectedActivity!.imageUrl!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Icon(
+                              Icons.image,
+                              size: 40,
+                              color: Theme.of(context).colorScheme.primary,
+                            );
+                          },
+                        ),
+                      )
+                      : Icon(
+                        Icons.image,
+                        size: 40,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
-                    )
-                  : Icon(
-                      Icons.image,
-                      size: 40,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
             ),
             const SizedBox(width: 16),
-            
+
             // Activity details
             Expanded(
               child: Column(
@@ -431,20 +442,18 @@ class _ActivitySelectionPageState extends ConsumerState<ActivitySelectionPage> {
         ),
       );
     }
-    
+
     // Otherwise, show the activity grid
     return Consumer(
       builder: (context, ref, child) {
         final activitiesData = ref.watch(activitiesProvider);
-        
+
         return activitiesData.when(
           data: (activities) {
             if (activities.isEmpty) {
-              return const Center(
-                child: Text('No activities found'),
-              );
+              return const Center(child: Text('No activities found'));
             }
-            
+
             return GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -462,7 +471,7 @@ class _ActivitySelectionPageState extends ConsumerState<ActivitySelectionPage> {
                     setState(() {
                       _selectedActivity = activity;
                     });
-                    
+
                     // Update resbite data
                     final resbiteData = ref.read(resbiteDataProvider.notifier);
                     resbiteData.state = {
@@ -482,32 +491,39 @@ class _ActivitySelectionPageState extends ConsumerState<ActivitySelectionPage> {
                           child: Container(
                             width: double.infinity,
                             color: AppTheme.primaryColor.withOpacity(0.1),
-                            child: activity.imageUrl != null
-                                ? Image.network(
-                                    activity.imageUrl!,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Icon(
-                                        Icons.image,
-                                        size: 40,
-                                        color: AppTheme.primaryColor,
-                                      );
-                                    },
-                                  )
-                                : Icon(
-                                    Icons.image,
-                                    size: 40,
-                                    color: AppTheme.primaryColor,
-                                  ),
+                            child:
+                                activity.imageUrl != null
+                                    ? Image.network(
+                                      activity.imageUrl!,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (
+                                        context,
+                                        error,
+                                        stackTrace,
+                                      ) {
+                                        return Icon(
+                                          Icons.image,
+                                          size: 40,
+                                          color: AppTheme.primaryColor,
+                                        );
+                                      },
+                                    )
+                                    : Icon(
+                                      Icons.image,
+                                      size: 40,
+                                      color: AppTheme.primaryColor,
+                                    ),
                           ),
                         ),
-                        
+
                         // Activity title
                         Padding(
                           padding: const EdgeInsets.all(12.0),
                           child: Text(
                             activity.title,
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            style: Theme.of(
+                              context,
+                            ).textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: AppTheme.darkTextColor,
                             ),
@@ -549,16 +565,25 @@ class _BasicDetailsPageState extends ConsumerState<BasicDetailsPage> {
   @override
   void initState() {
     super.initState();
-    
+
     // Get values from resbite data provider
     final resbiteData = ref.read(resbiteDataProvider);
-    
-    _titleController = TextEditingController(text: resbiteData['title'] as String? ?? '');
-    _descriptionController = TextEditingController(text: resbiteData['description'] as String? ?? '');
-    _attendanceLimitController = TextEditingController(
-      text: resbiteData['attendanceLimit'] != null ? resbiteData['attendanceLimit'].toString() : '',
+
+    _titleController = TextEditingController(
+      text: resbiteData['title'] as String? ?? '',
     );
-    _noteController = TextEditingController(text: resbiteData['note'] as String? ?? '');
+    _descriptionController = TextEditingController(
+      text: resbiteData['description'] as String? ?? '',
+    );
+    _attendanceLimitController = TextEditingController(
+      text:
+          resbiteData['attendanceLimit'] != null
+              ? resbiteData['attendanceLimit'].toString()
+              : '',
+    );
+    _noteController = TextEditingController(
+      text: resbiteData['note'] as String? ?? '',
+    );
     _isPrivate = resbiteData['isPrivate'] as bool? ?? false;
   }
 
@@ -575,13 +600,13 @@ class _BasicDetailsPageState extends ConsumerState<BasicDetailsPage> {
     if (!_formKey.currentState!.validate()) {
       return;
     }
-    
+
     // Parse attendance limit
     int? attendanceLimit;
     if (_attendanceLimitController.text.isNotEmpty) {
       attendanceLimit = int.tryParse(_attendanceLimitController.text);
     }
-    
+
     // Update resbite data
     final resbiteData = ref.read(resbiteDataProvider.notifier);
     resbiteData.state = {
@@ -602,7 +627,7 @@ class _BasicDetailsPageState extends ConsumerState<BasicDetailsPage> {
         _saveBasicDetails();
       }
     });
-    
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Form(
@@ -612,9 +637,9 @@ class _BasicDetailsPageState extends ConsumerState<BasicDetailsPage> {
           children: [
             Text(
               'Basic Information',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
@@ -622,7 +647,7 @@ class _BasicDetailsPageState extends ConsumerState<BasicDetailsPage> {
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: 24),
-            
+
             // Title field
             TextFormField(
               controller: _titleController,
@@ -639,7 +664,7 @@ class _BasicDetailsPageState extends ConsumerState<BasicDetailsPage> {
               },
             ),
             const SizedBox(height: 16),
-            
+
             // Description field
             TextFormField(
               controller: _descriptionController,
@@ -658,13 +683,14 @@ class _BasicDetailsPageState extends ConsumerState<BasicDetailsPage> {
               },
             ),
             const SizedBox(height: 16),
-            
+
             // Attendance limit field
             TextFormField(
               controller: _attendanceLimitController,
               decoration: const InputDecoration(
                 labelText: 'Attendance Limit',
-                hintText: 'Maximum number of participants (leave empty for no limit)',
+                hintText:
+                    'Maximum number of participants (leave empty for no limit)',
               ),
               keyboardType: TextInputType.number,
               validator: (value) {
@@ -681,7 +707,7 @@ class _BasicDetailsPageState extends ConsumerState<BasicDetailsPage> {
               },
             ),
             const SizedBox(height: 16),
-            
+
             // Notes field
             TextFormField(
               controller: _noteController,
@@ -693,7 +719,7 @@ class _BasicDetailsPageState extends ConsumerState<BasicDetailsPage> {
               maxLines: 3,
             ),
             const SizedBox(height: 16),
-            
+
             // Privacy toggle
             SwitchListTile(
               title: const Text('Private Resbite'),
@@ -728,12 +754,16 @@ class _DateTimePageState extends ConsumerState<DateTimePage> {
   @override
   void initState() {
     super.initState();
-    
+
     // Get values from resbite data provider
     final resbiteData = ref.read(resbiteDataProvider);
-    
-    _startDate = resbiteData['startDate'] as DateTime? ?? DateTime.now().add(const Duration(days: 1));
-    _endDate = resbiteData['endDate'] as DateTime? ?? _startDate.add(const Duration(hours: 2));
+
+    _startDate =
+        resbiteData['startDate'] as DateTime? ??
+        DateTime.now().add(const Duration(days: 1));
+    _endDate =
+        resbiteData['endDate'] as DateTime? ??
+        _startDate.add(const Duration(hours: 2));
     _isMultiDay = resbiteData['isMultiDay'] as bool? ?? false;
   }
 
@@ -744,13 +774,13 @@ class _DateTimePageState extends ConsumerState<DateTimePage> {
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
-    
+
     if (pickedDate != null) {
       final pickedTime = await showTimePicker(
         context: context,
         initialTime: TimeOfDay.fromDateTime(_startDate),
       );
-      
+
       if (pickedTime != null) {
         setState(() {
           _startDate = DateTime(
@@ -760,7 +790,7 @@ class _DateTimePageState extends ConsumerState<DateTimePage> {
             pickedTime.hour,
             pickedTime.minute,
           );
-          
+
           // If end date is before start date, update it
           if (_endDate.isBefore(_startDate)) {
             _endDate = _startDate.add(const Duration(hours: 2));
@@ -777,13 +807,13 @@ class _DateTimePageState extends ConsumerState<DateTimePage> {
       firstDate: _startDate,
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
-    
+
     if (pickedDate != null) {
       final pickedTime = await showTimePicker(
         context: context,
         initialTime: TimeOfDay.fromDateTime(_endDate),
       );
-      
+
       if (pickedTime != null) {
         setState(() {
           _endDate = DateTime(
@@ -817,7 +847,7 @@ class _DateTimePageState extends ConsumerState<DateTimePage> {
         _saveDateTimeInfo();
       }
     });
-    
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -825,9 +855,9 @@ class _DateTimePageState extends ConsumerState<DateTimePage> {
         children: [
           Text(
             'Date and Time',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text(
@@ -835,7 +865,7 @@ class _DateTimePageState extends ConsumerState<DateTimePage> {
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 24),
-          
+
           // Start date and time
           Card(
             child: Padding(
@@ -868,7 +898,7 @@ class _DateTimePageState extends ConsumerState<DateTimePage> {
             ),
           ),
           const SizedBox(height: 16),
-          
+
           // Multi-day toggle
           Card(
             child: Padding(
@@ -883,12 +913,14 @@ class _DateTimePageState extends ConsumerState<DateTimePage> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  
+
                   // Multi-day toggle
                   SwitchListTile(
                     contentPadding: EdgeInsets.zero,
                     title: const Text('Multiple Days'),
-                    subtitle: const Text('Does this resbite span multiple days?'),
+                    subtitle: const Text(
+                      'Does this resbite span multiple days?',
+                    ),
                     value: _isMultiDay,
                     onChanged: (value) {
                       setState(() {
@@ -896,22 +928,22 @@ class _DateTimePageState extends ConsumerState<DateTimePage> {
                       });
                     },
                   ),
-                  
+
                   // End date (shown if multi-day or if on the same day but with specific end time)
                   if (_isMultiDay || _endDate.day == _startDate.day)
                     ListTile(
                       contentPadding: EdgeInsets.zero,
                       leading: const Icon(Icons.event_outlined),
                       title: Text(
-                        _isMultiDay 
-                            ? 'End Date and Time' 
-                            : 'End Time',
+                        _isMultiDay ? 'End Date and Time' : 'End Time',
                         style: Theme.of(context).textTheme.titleSmall,
                       ),
                       subtitle: Text(
                         _isMultiDay
-                            ? DateFormat('EEEE, MMMM d, yyyy \'at\' h:mm a').format(_endDate)
-                            : DateFormat('h:mm a').format(_endDate)
+                            ? DateFormat(
+                              'EEEE, MMMM d, yyyy \'at\' h:mm a',
+                            ).format(_endDate)
+                            : DateFormat('h:mm a').format(_endDate),
                       ),
                       trailing: OutlinedButton(
                         onPressed: _selectEndDate,
@@ -922,7 +954,7 @@ class _DateTimePageState extends ConsumerState<DateTimePage> {
               ),
             ),
           ),
-          
+
           // Duration summary
           const SizedBox(height: 24),
           Card(
@@ -961,7 +993,7 @@ class _DateTimePageState extends ConsumerState<DateTimePage> {
 
   String _getDurationText() {
     final duration = _endDate.difference(_startDate);
-    
+
     if (duration.inDays > 0) {
       return 'This resbite will last for ${duration.inDays} days and ${duration.inHours % 24} hours';
     } else if (duration.inHours > 0) {
@@ -989,11 +1021,13 @@ class _LocationPageState extends ConsumerState<LocationPage> {
   @override
   void initState() {
     super.initState();
-    
+
     // Get values from resbite data provider
     final resbiteData = ref.read(resbiteDataProvider);
-    
-    _meetingPointController = TextEditingController(text: resbiteData['meetingPoint'] as String? ?? '');
+
+    _meetingPointController = TextEditingController(
+      text: resbiteData['meetingPoint'] as String? ?? '',
+    );
     _latitude = resbiteData['meetingLatitude'] as double?;
     _longitude = resbiteData['meetingLongitude'] as double?;
   }
@@ -1008,7 +1042,7 @@ class _LocationPageState extends ConsumerState<LocationPage> {
     if (!_formKey.currentState!.validate()) {
       return;
     }
-    
+
     // Update resbite data
     final resbiteData = ref.read(resbiteDataProvider.notifier);
     resbiteData.state = {
@@ -1027,7 +1061,7 @@ class _LocationPageState extends ConsumerState<LocationPage> {
         _saveLocationInfo();
       }
     });
-    
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Form(
@@ -1037,9 +1071,9 @@ class _LocationPageState extends ConsumerState<LocationPage> {
           children: [
             Text(
               'Location',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
@@ -1047,7 +1081,7 @@ class _LocationPageState extends ConsumerState<LocationPage> {
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: 24),
-            
+
             // Meeting point field
             Card(
               child: Padding(
@@ -1080,7 +1114,7 @@ class _LocationPageState extends ConsumerState<LocationPage> {
               ),
             ),
             const SizedBox(height: 16),
-            
+
             // Location map - will be replaced with a real map in future
             Card(
               child: Container(
@@ -1097,7 +1131,9 @@ class _LocationPageState extends ConsumerState<LocationPage> {
                       Icon(
                         Icons.map,
                         size: 64,
-                        color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primary.withOpacity(0.5),
                       ),
                       const SizedBox(height: 16),
                       Text(
@@ -1110,7 +1146,7 @@ class _LocationPageState extends ConsumerState<LocationPage> {
               ),
             ),
             const SizedBox(height: 16),
-            
+
             // Location tips
             Card(
               child: Padding(
@@ -1128,13 +1164,15 @@ class _LocationPageState extends ConsumerState<LocationPage> {
                     _buildTip(
                       context,
                       icon: Icons.info_outline,
-                      text: 'Be specific about the meeting place to avoid confusion',
+                      text:
+                          'Be specific about the meeting place to avoid confusion',
                     ),
                     const SizedBox(height: 8),
                     _buildTip(
                       context,
                       icon: Icons.lightbulb_outline,
-                      text: 'Include nearby landmarks to help people find the location',
+                      text:
+                          'Include nearby landmarks to help people find the location',
                     ),
                   ],
                 ),
@@ -1146,15 +1184,17 @@ class _LocationPageState extends ConsumerState<LocationPage> {
     );
   }
 
-  Widget _buildTip(BuildContext context, {required IconData icon, required String text}) {
+  Widget _buildTip(
+    BuildContext context, {
+    required IconData icon,
+    required String text,
+  }) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Icon(icon, size: 20),
         const SizedBox(width: 12),
-        Expanded(
-          child: Text(text),
-        ),
+        Expanded(child: Text(text)),
       ],
     );
   }
@@ -1175,22 +1215,21 @@ class _InvitationsPageState extends ConsumerState<InvitationsPage> {
   @override
   void initState() {
     super.initState();
-    
+
     // Get values from resbite data provider
     final resbiteData = ref.read(resbiteDataProvider);
-    
+
     if (resbiteData['invitedUsers'] != null) {
-      _selectedUsers = List<app_user.User>.from(resbiteData['invitedUsers'] as List);
+      _selectedUsers = List<app_user.User>.from(
+        resbiteData['invitedUsers'] as List,
+      );
     }
   }
 
   void _saveInvitationInfo() {
     // Update resbite data
     final resbiteData = ref.read(resbiteDataProvider.notifier);
-    resbiteData.state = {
-      ...resbiteData.state,
-      'invitedUsers': _selectedUsers,
-    };
+    resbiteData.state = {...resbiteData.state, 'invitedUsers': _selectedUsers};
   }
 
   @override
@@ -1201,7 +1240,7 @@ class _InvitationsPageState extends ConsumerState<InvitationsPage> {
         _saveInvitationInfo();
       }
     });
-    
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -1209,9 +1248,9 @@ class _InvitationsPageState extends ConsumerState<InvitationsPage> {
         children: [
           Text(
             'Invitations',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text(
@@ -1219,7 +1258,7 @@ class _InvitationsPageState extends ConsumerState<InvitationsPage> {
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 24),
-          
+
           // Enable invitations switch
           Card(
             child: Padding(
@@ -1235,7 +1274,9 @@ class _InvitationsPageState extends ConsumerState<InvitationsPage> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    subtitle: const Text('Enable to invite specific people to your resbite'),
+                    subtitle: const Text(
+                      'Enable to invite specific people to your resbite',
+                    ),
                     value: _isInvitationEnabled,
                     onChanged: (value) {
                       setState(() {
@@ -1248,7 +1289,7 @@ class _InvitationsPageState extends ConsumerState<InvitationsPage> {
             ),
           ),
           const SizedBox(height: 16),
-          
+
           // Invitation list - only shown if invitations are enabled
           if (_isInvitationEnabled)
             Card(
@@ -1262,9 +1303,8 @@ class _InvitationsPageState extends ConsumerState<InvitationsPage> {
                       children: [
                         Text(
                           'People to Invite',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                         OutlinedButton.icon(
                           icon: const Icon(Icons.add),
@@ -1281,48 +1321,50 @@ class _InvitationsPageState extends ConsumerState<InvitationsPage> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // Selected users list
                     _selectedUsers.isEmpty
                         ? const Center(
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(vertical: 32.0),
-                              child: Text('No people selected yet'),
-                            ),
-                          )
-                        : ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: _selectedUsers.length,
-                            itemBuilder: (context, index) {
-                              final user = _selectedUsers[index];
-                              return ListTile(
-                                leading: CircleAvatar(
-                                  backgroundImage: user.profileImageUrl != null
-                                      ? NetworkImage(user.profileImageUrl!)
-                                      : null,
-                                  child: user.profileImageUrl == null
-                                      ? Text(user.displayName?[0] ?? '')
-                                      : null,
-                                ),
-                                title: Text(user.displayName ?? 'Unknown User'),
-                                subtitle: Text(user.email),
-                                trailing: IconButton(
-                                  icon: const Icon(Icons.remove_circle_outline),
-                                  onPressed: () {
-                                    setState(() {
-                                      _selectedUsers.removeAt(index);
-                                    });
-                                  },
-                                ),
-                              );
-                            },
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 32.0),
+                            child: Text('No people selected yet'),
                           ),
+                        )
+                        : ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: _selectedUsers.length,
+                          itemBuilder: (context, index) {
+                            final user = _selectedUsers[index];
+                            return ListTile(
+                              leading: CircleAvatar(
+                                backgroundImage:
+                                    user.profileImageUrl != null
+                                        ? NetworkImage(user.profileImageUrl!)
+                                        : null,
+                                child:
+                                    user.profileImageUrl == null
+                                        ? Text(user.displayName?[0] ?? '')
+                                        : null,
+                              ),
+                              title: Text(user.displayName ?? 'Unknown User'),
+                              subtitle: Text(user.email),
+                              trailing: IconButton(
+                                icon: const Icon(Icons.remove_circle_outline),
+                                onPressed: () {
+                                  setState(() {
+                                    _selectedUsers.removeAt(index);
+                                  });
+                                },
+                              ),
+                            );
+                          },
+                        ),
                   ],
                 ),
               ),
             ),
-          
+
           // Invitation notes
           const SizedBox(height: 16),
           Card(
@@ -1341,13 +1383,15 @@ class _InvitationsPageState extends ConsumerState<InvitationsPage> {
                   _buildNote(
                     context,
                     icon: Icons.info_outline,
-                    text: 'Invitations will be sent when you create the resbite',
+                    text:
+                        'Invitations will be sent when you create the resbite',
                   ),
                   const SizedBox(height: 8),
                   _buildNote(
                     context,
                     icon: Icons.lightbulb_outline,
-                    text: 'You can always invite more people after creating the resbite',
+                    text:
+                        'You can always invite more people after creating the resbite',
                   ),
                 ],
               ),
@@ -1358,15 +1402,17 @@ class _InvitationsPageState extends ConsumerState<InvitationsPage> {
     );
   }
 
-  Widget _buildNote(BuildContext context, {required IconData icon, required String text}) {
+  Widget _buildNote(
+    BuildContext context, {
+    required IconData icon,
+    required String text,
+  }) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Icon(icon, size: 20),
         const SizedBox(width: 12),
-        Expanded(
-          child: Text(text),
-        ),
+        Expanded(child: Text(text)),
       ],
     );
   }
@@ -1389,20 +1435,21 @@ class _ReviewPageState extends ConsumerState<ReviewPage> {
       _isLoading = true;
       _errorMessage = null;
     });
-    
+
     try {
       // Verify authentication
       final authService = ref.read(authServiceProvider);
-      if (authService.status != AuthStatus.authenticated || authService.currentUser == null) {
+      if (authService.status != AuthStatus.authenticated ||
+          authService.currentUser == null) {
         throw Exception('You must be logged in to create a resbite');
       }
-      
+
       // Get resbite data
       final resbiteData = ref.read(resbiteDataProvider);
-      
+
       // Get user directly from auth service (more reliable)
       final user = authService.currentUser!;
-      
+
       // Create resbite object
       final resbite = Resbite(
         id: '', // Will be generated by the database
@@ -1428,21 +1475,21 @@ class _ReviewPageState extends ConsumerState<ReviewPage> {
         participants: [user],
         createdAt: DateTime.now(),
       );
-      
+
       // Create resbite
-      final databaseService = ref.read(databaseServiceProvider);
-      final createdResbite = await databaseService.createResbite(resbite);
-      
+      final resbiteService = ref.read(resbiteServiceProvider);
+      final createdResbite = await resbiteService.createResbite(resbite);
+
       if (createdResbite != null) {
         // Show success message
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Resbite created successfully')),
           );
-          
+
           // Refresh resbites
-          ref.refresh(resbitesProvider(true));
-          
+          ref.refresh(resbitesProvider(ResbiteFilter(upcoming: true)));
+
           // Navigate to resbite details
           Navigator.of(context).pushReplacementNamed(
             '/resbites/details',
@@ -1472,10 +1519,10 @@ class _ReviewPageState extends ConsumerState<ReviewPage> {
   Widget build(BuildContext context) {
     // Get resbite data
     final resbiteData = ref.watch(resbiteDataProvider);
-    
+
     // Get activity
     final activity = resbiteData['activity'] as Activity?;
-    
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -1483,9 +1530,9 @@ class _ReviewPageState extends ConsumerState<ReviewPage> {
         children: [
           Text(
             'Review and Create',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text(
@@ -1493,7 +1540,7 @@ class _ReviewPageState extends ConsumerState<ReviewPage> {
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 24),
-          
+
           // Error message
           if (_errorMessage != null)
             Container(
@@ -1505,12 +1552,10 @@ class _ReviewPageState extends ConsumerState<ReviewPage> {
               ),
               child: Text(
                 _errorMessage!,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.error,
-                ),
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
             ),
-          
+
           // Activity info
           if (activity != null)
             Card(
@@ -1532,29 +1577,40 @@ class _ReviewPageState extends ConsumerState<ReviewPage> {
                           width: 60,
                           height: 60,
                           decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.primary.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: activity.imageUrl != null
-                              ? ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Image.network(
-                                    activity.imageUrl!,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Icon(
-                                        Icons.image,
-                                        size: 30,
-                                        color: Theme.of(context).colorScheme.primary,
-                                      );
-                                    },
+                          child:
+                              activity.imageUrl != null
+                                  ? ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Image.network(
+                                      activity.imageUrl!,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (
+                                        context,
+                                        error,
+                                        stackTrace,
+                                      ) {
+                                        return Icon(
+                                          Icons.image,
+                                          size: 30,
+                                          color:
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.primary,
+                                        );
+                                      },
+                                    ),
+                                  )
+                                  : Icon(
+                                    Icons.image,
+                                    size: 30,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
                                   ),
-                                )
-                              : Icon(
-                                  Icons.image,
-                                  size: 30,
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
                         ),
                         const SizedBox(width: 16),
                         Expanded(
@@ -1571,24 +1627,34 @@ class _ReviewPageState extends ConsumerState<ReviewPage> {
                                   child: Wrap(
                                     spacing: 4,
                                     runSpacing: 4,
-                                    children: activity.categories.map((category) {
-                                      return Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 2,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                                          borderRadius: BorderRadius.circular(4),
-                                        ),
-                                        child: Text(
-                                          category.name,
-                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                            color: Theme.of(context).colorScheme.primary,
-                                          ),
-                                        ),
-                                      );
-                                    }).toList(),
+                                    children:
+                                        activity.categories.map((category) {
+                                          return Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 2,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .primary
+                                                  .withOpacity(0.1),
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                            ),
+                                            child: Text(
+                                              category.name,
+                                              style: Theme.of(
+                                                context,
+                                              ).textTheme.bodySmall?.copyWith(
+                                                color:
+                                                    Theme.of(
+                                                      context,
+                                                    ).colorScheme.primary,
+                                              ),
+                                            ),
+                                          );
+                                        }).toList(),
                                   ),
                                 ),
                             ],
@@ -1601,7 +1667,7 @@ class _ReviewPageState extends ConsumerState<ReviewPage> {
               ),
             ),
           const SizedBox(height: 16),
-          
+
           // Basic details
           Card(
             child: Padding(
@@ -1634,23 +1700,27 @@ class _ReviewPageState extends ConsumerState<ReviewPage> {
                     context,
                     icon: Icons.people,
                     label: 'Attendance Limit',
-                    value: resbiteData['attendanceLimit'] != null
-                        ? resbiteData['attendanceLimit'].toString()
-                        : 'No limit',
+                    value:
+                        resbiteData['attendanceLimit'] != null
+                            ? resbiteData['attendanceLimit'].toString()
+                            : 'No limit',
                   ),
                   const SizedBox(height: 12),
                   _buildReviewItem(
                     context,
                     icon: Icons.visibility,
                     label: 'Visibility',
-                    value: (resbiteData['isPrivate'] as bool? ?? false) ? 'Private' : 'Public',
+                    value:
+                        (resbiteData['isPrivate'] as bool? ?? false)
+                            ? 'Private'
+                            : 'Public',
                   ),
                 ],
               ),
             ),
           ),
           const SizedBox(height: 16),
-          
+
           // Date and time
           Card(
             child: Padding(
@@ -1669,35 +1739,43 @@ class _ReviewPageState extends ConsumerState<ReviewPage> {
                     context,
                     icon: Icons.calendar_today,
                     label: 'Start Date',
-                    value: DateFormat('EEEE, MMMM d, yyyy').format(resbiteData['startDate'] as DateTime),
+                    value: DateFormat(
+                      'EEEE, MMMM d, yyyy',
+                    ).format(resbiteData['startDate'] as DateTime),
                   ),
                   const SizedBox(height: 12),
                   _buildReviewItem(
                     context,
                     icon: Icons.access_time,
                     label: 'Start Time',
-                    value: DateFormat('h:mm a').format(resbiteData['startDate'] as DateTime),
+                    value: DateFormat(
+                      'h:mm a',
+                    ).format(resbiteData['startDate'] as DateTime),
                   ),
                   const SizedBox(height: 12),
                   _buildReviewItem(
                     context,
                     icon: Icons.calendar_today,
                     label: 'End Date',
-                    value: DateFormat('EEEE, MMMM d, yyyy').format(resbiteData['endDate'] as DateTime),
+                    value: DateFormat(
+                      'EEEE, MMMM d, yyyy',
+                    ).format(resbiteData['endDate'] as DateTime),
                   ),
                   const SizedBox(height: 12),
                   _buildReviewItem(
                     context,
                     icon: Icons.access_time,
                     label: 'End Time',
-                    value: DateFormat('h:mm a').format(resbiteData['endDate'] as DateTime),
+                    value: DateFormat(
+                      'h:mm a',
+                    ).format(resbiteData['endDate'] as DateTime),
                   ),
                 ],
               ),
             ),
           ),
           const SizedBox(height: 16),
-          
+
           // Location
           Card(
             child: Padding(
@@ -1722,7 +1800,7 @@ class _ReviewPageState extends ConsumerState<ReviewPage> {
               ),
             ),
           ),
-          
+
           // Create button
           const SizedBox(height: 32),
           SizedBox(
@@ -1738,22 +1816,25 @@ class _ReviewPageState extends ConsumerState<ReviewPage> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: _isLoading
-                  ? const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2.5,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              child:
+                  _isLoading
+                      ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.5,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
+                        ),
+                      )
+                      : const Text(
+                        'Create Resbite',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
                       ),
-                    )
-                  : const Text(
-                      'Create Resbite',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
             ),
           ),
           const SizedBox(height: 32),
@@ -1779,15 +1860,12 @@ class _ReviewPageState extends ConsumerState<ReviewPage> {
             children: [
               Text(
                 label,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 4),
-              Text(
-                value,
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
+              Text(value, style: Theme.of(context).textTheme.bodyMedium),
             ],
           ),
         ),

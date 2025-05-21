@@ -3,10 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../config/constants.dart';
-import '../models/activity.dart';
-import '../models/category.dart';
-import '../models/resbite.dart';
-import 'providers.dart';
+// import '../models/category.dart'; // Removed unused import
+// import '../models/resbite.dart'; // Import no longer needed as all Resbite providers are in providers.dart
+// import 'providers.dart'; // Import no longer needed as all relevant providers are in providers.dart
 
 // All providers moved to providers.dart
 
@@ -14,46 +13,28 @@ import 'providers.dart';
 
 // Current user provider moved to providers.dart
 
-// Categories provider
-final categoriesProvider = FutureProvider<List<Category>>((ref) async {
-  final databaseService = ref.watch(databaseServiceProvider);
-  return databaseService.getCategories();
-});
+// Categories provider - This was moved to providers.dart
+// final categoriesProvider = FutureProvider<List<Category>>((ref) async {
+//   final databaseService = ref.watch(databaseServiceProvider);
+//   return databaseService.getCategories();
+// });
 
 // Activities providers
-final activitiesProvider = FutureProvider<List<Activity>>((ref) async {
-  final databaseService = ref.watch(databaseServiceProvider);
-  return databaseService.getActivities(limit: AppConstants.paginationLimit);
-});
+// Removed to consolidate in providers.dart
 
-final activitiesByCategoryProvider = FutureProvider.family<List<Activity>, String>((ref, categoryId) async {
-  final databaseService = ref.watch(databaseServiceProvider);
-  return databaseService.getActivitiesByCategory(categoryId, limit: AppConstants.paginationLimit);
-});
-
-final activityProvider = FutureProvider.family<Activity?, String>((ref, activityId) async {
-  final databaseService = ref.watch(databaseServiceProvider);
-  return databaseService.getActivity(activityId);
-});
-
-// Resbites providers
-final resbitesProvider = FutureProvider.family<List<Resbite>, bool>((ref, upcoming) async {
-  final databaseService = ref.watch(databaseServiceProvider);
-  final authService = ref.watch(authServiceProvider);
-  final userId = authService.currentUser?.id;
+// Resbites providers - This provider definition is outdated and has been removed.
+// The correct provider is in providers.dart and uses ResbiteFilter.
+// final resbitesProvider = FutureProvider.family<List<Resbite>, bool>((ref, upcoming) async {
+//   final databaseService = ref.watch(databaseServiceProvider);
+//   final authService = ref.watch(authServiceProvider);
+//   final userId = authService.currentUser?.id;
   
-  return databaseService.getResbites(
-    limit: AppConstants.paginationLimit, 
-    upcoming: upcoming,
-    userId: userId,
-  );
-});
-
-
-final resbiteProvider = FutureProvider.family<Resbite?, String>((ref, resbiteId) async {
-  final databaseService = ref.watch(databaseServiceProvider);
-  return databaseService.getResbite(resbiteId);
-});
+//   return databaseService.getResbites(
+//     limit: AppConstants.paginationLimit, 
+//     upcoming: upcoming,
+//     userId: userId,
+//   );
+// });
 
 // Theme mode provider
 final themeModeProvider = StateNotifierProvider<ThemeModeNotifier, ThemeMode>((ref) {

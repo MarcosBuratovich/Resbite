@@ -57,15 +57,27 @@ class ShadCard extends StatelessWidget {
         if (header != null) header!,
 
         // Title section
-        if (title != null || subtitle != null || leading != null || trailing != null)
+        if (title != null ||
+            subtitle != null ||
+            leading != null ||
+            trailing != null)
           _buildTitleSection(context),
 
         // Main content
         if (child != null)
           Padding(
-            padding: title != null || subtitle != null || leading != null || trailing != null
-                ? EdgeInsets.fromLTRB(padding.horizontal / 2, 0, padding.horizontal / 2, padding.vertical / 2)
-                : padding,
+            padding:
+                title != null ||
+                        subtitle != null ||
+                        leading != null ||
+                        trailing != null
+                    ? EdgeInsets.fromLTRB(
+                      padding.horizontal / 2,
+                      0,
+                      padding.horizontal / 2,
+                      padding.vertical / 2,
+                    )
+                    : padding,
             child: child,
           ),
 
@@ -84,19 +96,21 @@ class ShadCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: cardBorderRadius,
-        border: hasBorder ? Border.all(color: colorScheme.outline, width: 1) : null,
+        border:
+            hasBorder ? Border.all(color: colorScheme.outline, width: 1) : null,
       ),
       child: Material(
         color: Colors.transparent,
         borderRadius: cardBorderRadius,
         clipBehavior: Clip.antiAlias,
-        child: onTap != null
-            ? InkWell(
-                onTap: onTap,
-                borderRadius: cardBorderRadius,
-                child: cardContent,
-              )
-            : cardContent,
+        child:
+            onTap != null
+                ? InkWell(
+                  onTap: onTap,
+                  borderRadius: cardBorderRadius,
+                  child: cardContent,
+                )
+                : cardContent,
       ),
     );
 
@@ -110,7 +124,10 @@ class ShadCard extends StatelessWidget {
 
   /// Builds the title section with title, subtitle, leading and trailing widgets
   Widget _buildTitleSection(BuildContext context) {
-    if (title == null && subtitle == null && leading == null && trailing == null) {
+    if (title == null &&
+        subtitle == null &&
+        leading == null &&
+        trailing == null) {
       return const SizedBox.shrink();
     }
 
@@ -125,10 +142,7 @@ class ShadCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // Leading widget
-          if (leading != null) ...[
-            leading!,
-            const SizedBox(width: 12),
-          ],
+          if (leading != null) ...[leading!, const SizedBox(width: 12)],
 
           // Title and subtitle
           Expanded(
@@ -143,7 +157,7 @@ class ShadCard extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                if (title != null && subtitle != null) 
+                if (title != null && subtitle != null)
                   const SizedBox(height: 4),
                 if (subtitle != null)
                   Text(
@@ -159,10 +173,7 @@ class ShadCard extends StatelessWidget {
           ),
 
           // Trailing widget
-          if (trailing != null) ...[
-            const SizedBox(width: 12),
-            trailing!,
-          ],
+          if (trailing != null) ...[const SizedBox(width: 12), trailing!],
         ],
       ),
     );
@@ -178,12 +189,15 @@ class ShadCard extends StatelessWidget {
       padding: EdgeInsets.all(padding.horizontal / 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
-        children: actions!.map((action) => 
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4.0),
-            child: action,
-          )
-        ).toList(),
+        children:
+            actions!
+                .map(
+                  (action) => Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                    child: action,
+                  ),
+                )
+                .toList(),
       ),
     );
   }
@@ -208,7 +222,6 @@ class ShadCard extends StatelessWidget {
   }) {
     return ShadCard(
       key: key,
-      child: child,
       onTap: onTap,
       width: width,
       height: height,
@@ -222,6 +235,7 @@ class ShadCard extends StatelessWidget {
       actions: actions,
       hasShadow: true,
       hasBorder: true,
+      child: child,
     );
   }
 
@@ -243,7 +257,6 @@ class ShadCard extends StatelessWidget {
   }) {
     return ShadCard(
       key: key,
-      child: child,
       onTap: onTap,
       width: width,
       height: height,
@@ -257,6 +270,7 @@ class ShadCard extends StatelessWidget {
       actions: actions,
       hasShadow: true,
       hasBorder: false,
+      child: child,
     );
   }
 
@@ -278,7 +292,6 @@ class ShadCard extends StatelessWidget {
   }) {
     return ShadCard(
       key: key,
-      child: child,
       onTap: onTap,
       width: width,
       height: height,
@@ -292,6 +305,7 @@ class ShadCard extends StatelessWidget {
       actions: actions,
       hasShadow: false,
       hasBorder: true,
+      child: child,
     );
   }
 
@@ -313,7 +327,6 @@ class ShadCard extends StatelessWidget {
   }) {
     return ShadCard(
       key: key,
-      child: child,
       onTap: onTap,
       width: width,
       height: height,
@@ -327,6 +340,7 @@ class ShadCard extends StatelessWidget {
       actions: actions,
       hasShadow: false,
       hasBorder: false,
+      child: child,
     );
   }
 }
@@ -334,12 +348,12 @@ class ShadCard extends StatelessWidget {
 /// Extension for easier access to padding dimensions
 extension EdgeInsetsGeometryExtension on EdgeInsetsGeometry {
   double get horizontal {
-    final edgeInsets = this.resolve(TextDirection.ltr);
+    final edgeInsets = resolve(TextDirection.ltr);
     return edgeInsets.left + edgeInsets.right;
   }
 
   double get vertical {
-    final edgeInsets = this.resolve(TextDirection.ltr);
+    final edgeInsets = resolve(TextDirection.ltr);
     return edgeInsets.top + edgeInsets.bottom;
   }
 }

@@ -2,8 +2,11 @@ import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:resbite_app/models/user.dart';
-import 'package:resbite_app/services/providers.dart';
+import 'package:resbite_app/services/providers.dart'; 
 import 'package:resbite_app/utils/logger.dart';
+
+// Import new services
+import '../ui/screens/friends/services/friend_service_impl.dart'; // Corrected path to the implementation file which also defines the interface and provider alias
 
 /// Contact model to represent a phone contact
 class PhoneContact {
@@ -109,7 +112,7 @@ class ContactService {
   Future<List<User>> syncContactsWithDatabase() async {
     try {
       // Get database service from app_state
-      final databaseService = _ref.read(databaseServiceProvider);
+      final userDbService = _ref.read(userDbServiceProvider);
       final contacts = await getContacts();
       
       // Skip empty contacts list
@@ -135,7 +138,7 @@ class ContactService {
       }
       
       // Query database for matching users
-      final matchedUsers = await databaseService.findUsersByContactInfo(
+      final matchedUsers = await userDbService.findUsersByContactInfo(
         emails: emails,
         phones: phones,
       );
@@ -157,7 +160,7 @@ class ContactService {
   Future<bool> addContactAsFriend(String userId) async {
     try {
       // Get services from app_state
-      final databaseService = _ref.read(databaseServiceProvider);
+      final friendService = _ref.read(friendServiceProvider);
       final authService = _ref.read(authServiceProvider);
       
       // Get current user ID
@@ -168,10 +171,7 @@ class ContactService {
       }
       
       // Add friend relationship
-      await databaseService.addFriendship(
-        userId1: currentUser.id,
-        userId2: userId,
-      );
+      await friendService.addFriend(userId);
       
       return true;
     } catch (e) {

@@ -73,10 +73,14 @@ class ShadInput extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final defaultBorderRadius = borderRadius ?? BorderRadius.circular(8);
-    final defaultContentPadding = contentPadding ?? 
+    final defaultContentPadding =
+        contentPadding ??
         const EdgeInsets.symmetric(horizontal: 16, vertical: 12);
-    final actualBackgroundColor = backgroundColor ?? 
-        (filled ? colorScheme.surfaceVariant.withOpacity(0.5) : Colors.transparent);
+    final actualBackgroundColor =
+        backgroundColor ??
+        (filled
+            ? colorScheme.surfaceContainerHighest.withOpacity(0.5)
+            : Colors.transparent);
     final actualTextColor = textColor ?? colorScheme.onSurface;
 
     return Column(
@@ -89,9 +93,10 @@ class ShadInput extends StatelessWidget {
             labelText!,
             style: TwTypography.labelSm(context).copyWith(
               fontWeight: FontWeight.w500,
-              color: enabled 
-                ? colorScheme.onSurface 
-                : colorScheme.onSurface.withOpacity(0.6),
+              color:
+                  enabled
+                      ? colorScheme.onSurface
+                      : colorScheme.onSurface.withOpacity(0.6),
             ),
           ),
           const SizedBox(height: 6),
@@ -114,12 +119,11 @@ class ShadInput extends StatelessWidget {
           maxLines: maxLines,
           minLines: minLines,
           maxLength: maxLength,
-          maxLengthEnforcement: maxLength != null 
-            ? MaxLengthEnforcement.enforced 
-            : MaxLengthEnforcement.none,
-          style: TwTypography.body(context).copyWith(
-            color: actualTextColor,
-          ),
+          maxLengthEnforcement:
+              maxLength != null
+                  ? MaxLengthEnforcement.enforced
+                  : MaxLengthEnforcement.none,
+          style: TwTypography.body(context).copyWith(color: actualTextColor),
           decoration: InputDecoration(
             hintText: hintText,
             helperText: helperText,
@@ -152,17 +156,11 @@ class ShadInput extends StatelessWidget {
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: defaultBorderRadius,
-              borderSide: BorderSide(
-                color: colorScheme.error,
-                width: 1.0,
-              ),
+              borderSide: BorderSide(color: colorScheme.error, width: 1.0),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: defaultBorderRadius,
-              borderSide: BorderSide(
-                color: colorScheme.error,
-                width: 2.0,
-              ),
+              borderSide: BorderSide(color: colorScheme.error, width: 2.0),
             ),
             disabledBorder: OutlineInputBorder(
               borderRadius: defaultBorderRadius,
@@ -171,15 +169,15 @@ class ShadInput extends StatelessWidget {
                 width: 1.0,
               ),
             ),
-            errorStyle: TwTypography.bodyXs(context).copyWith(
-              color: colorScheme.error,
-            ),
-            helperStyle: TwTypography.bodyXs(context).copyWith(
-              color: colorScheme.onSurfaceVariant,
-            ),
-            hintStyle: TwTypography.body(context).copyWith(
-              color: colorScheme.onSurfaceVariant.withOpacity(0.7),
-            ),
+            errorStyle: TwTypography.bodyXs(
+              context,
+            ).copyWith(color: colorScheme.error),
+            helperStyle: TwTypography.bodyXs(
+              context,
+            ).copyWith(color: colorScheme.onSurfaceVariant),
+            hintStyle: TwTypography.body(
+              context,
+            ).copyWith(color: colorScheme.onSurfaceVariant.withOpacity(0.7)),
           ),
           validator: validator,
           autovalidateMode: autovalidateMode,
@@ -418,7 +416,7 @@ class _PasswordInput extends StatefulWidget {
   final String? Function(String?)? validator;
 
   const _PasswordInput({
-    Key? key,
+    super.key,
     this.labelText,
     this.hintText,
     this.helperText,
@@ -433,7 +431,7 @@ class _PasswordInput extends StatefulWidget {
     this.autofocus = false,
     this.showToggle = true,
     this.validator,
-  }) : super(key: key);
+  });
 
   @override
   State<_PasswordInput> createState() => _PasswordInputState();
@@ -460,18 +458,19 @@ class _PasswordInputState extends State<_PasswordInput> {
       enabled: widget.enabled,
       autofocus: widget.autofocus,
       prefixIcon: const Icon(Icons.lock_outline),
-      suffixIcon: widget.showToggle
-          ? IconButton(
-              icon: Icon(
-                _obscureText ? Icons.visibility_off : Icons.visibility,
-              ),
-              onPressed: () {
-                setState(() {
-                  _obscureText = !_obscureText;
-                });
-              },
-            )
-          : null,
+      suffixIcon:
+          widget.showToggle
+              ? IconButton(
+                icon: Icon(
+                  _obscureText ? Icons.visibility_off : Icons.visibility,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _obscureText = !_obscureText;
+                  });
+                },
+              )
+              : null,
       validator: widget.validator,
     );
   }

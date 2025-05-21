@@ -3,8 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:resbite_app/components/ui/button.dart';
 import 'package:resbite_app/components/ui/avatar.dart';
 import 'package:resbite_app/services/contact_service.dart';
-import 'package:resbite_app/services/providers.dart';
 import 'package:resbite_app/styles/tailwind_theme.dart';
+
+// Import the modular friend services
+import 'package:resbite_app/ui/screens/friends/services/services.dart'
+    as friend_services;
 
 /// Widget for displaying contacts in the Network tab
 class ContactsDisplay extends ConsumerWidget {
@@ -14,12 +17,12 @@ class ContactsDisplay extends ConsumerWidget {
   final List<Map<String, dynamic>> nonResbiteUsers;
 
   const ContactsDisplay({
-    Key? key,
+    super.key,
     this.showContactSyncUI = false,
     required this.onSyncPressed,
     this.resbiteUsers = const [],
     this.nonResbiteUsers = const [],
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -64,114 +67,164 @@ class ContactsDisplay extends ConsumerWidget {
   }
 
   Widget _buildContactLists(BuildContext context, WidgetRef ref) {
+    // Combine both contact lists
+    final allContacts = [...resbiteUsers, ...nonResbiteUsers];
+
+    // Sort alphabetically by display name for better user experience
+    allContacts.sort(
+      (a, b) => (a['displayName'] ?? '').toString().compareTo(
+        (b['displayName'] ?? '').toString(),
+      ),
+    );
+
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        // Resbite users from contacts
-        if (resbiteUsers.isNotEmpty) ...[
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8.0, left: 4.0),
-            child: Text(
-              'Contacts on Resbite',
-              style: TwTypography.heading6(context),
-            ),
-          ),
-          ...resbiteUsers.map((contact) => _buildContactItem(context, ref, contact, isResbiteUser: true)),
-          const SizedBox(height: 24),
-        ],
-          
-        // Non-Resbite users from contacts
-        if (nonResbiteUsers.isNotEmpty) ...[
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8.0, left: 4.0),
-            child: Text(
-              'Invite Contacts to Resbite',
-              style: TwTypography.heading6(context),
-            ),
-          ),
-          ...nonResbiteUsers.map((contact) => _buildContactItem(context, ref, contact, isResbiteUser: false)),
-        ],
+        // Header for all contacts
+        Padding(
+          padding: const EdgeInsets.only(bottom: 16.0, left: 4.0),
+          child: Text('Your Contacts', style: TwTypography.heading6(context)),
+        ),
+
+        // Show all contacts in a single list
+        ...allContacts.map((contact) {
+          // Determine if contact is a Resbite user
+          final isResbiteUser = resbiteUsers.any(
+            (user) => user['id'] == contact['id'],
+          );
+
+          return _buildContactItem(
+            context,
+            ref,
+            contact,
+            isResbiteUser: isResbiteUser,
+          );
+        }),
       ],
     );
   }
 
-  Widget _buildContactItem(BuildContext context, WidgetRef ref, Map<String, dynamic> contact, {required bool isResbiteUser}) {
+  Widget _buildContactItem(
+    BuildContext context,
+    WidgetRef ref,
+    Map<String, dynamic> contact, {
+    required bool isResbiteUser,
+  }) {
     final displayName = contact['displayName'] ?? 'Unknown';
     final phoneNumbers = (contact['phoneNumbers'] as List<dynamic>?) ?? [];
     final emails = (contact['emails'] as List<dynamic>?) ?? [];
     final profileImageUrl = contact['profileImageUrl'];
-    final initials = displayName.split(' ').map((e) => e.isNotEmpty ? e[0] : '').join('');
-    
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+    final initials = displayName
+        .split(' ')
+        .map((e) => e.isNotEmpty ? e[0] : '')
+        .join('');
+
+    return Card(
+      elevation: 1,
+      margin: const EdgeInsets.only(bottom: 8.0),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () {
           // Show contact details if needed
         },
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(12.0),
           child: Row(
             children: [
-              // Profile picture
-              ShadAvatar(
-                size: AvatarSize.md,
-                imageUrl: profileImageUrl,
-                initials: initials,
-                backgroundColor: TwColors.primary.withOpacity(0.2),
-                textColor: TwColors.primary,
-                statusColor: isResbiteUser ? TwColors.success : null,
+              // Profile picture with status indicator
+              Stack(
+                children: [
+                  ShadAvatar(
+                    size: AvatarSize.md,
+                    imageUrl: profileImageUrl,
+                    initials: initials,
+                    backgroundColor: TwColors.primary.withOpacity(0.2),
+                    textColor: TwColors.primary,
+                  ),
+                  if (isResbiteUser)
+                    Positioned(
+                      right: 0,
+                      bottom: 0,
+                      child: Container(
+                        width: 14,
+                        height: 14,
+                        decoration: BoxDecoration(
+                          color: TwColors.success,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
+                      ),
+                    ),
+                ],
               ),
               const SizedBox(width: 16),
-              
+
               // Contact details
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      displayName,
-                      style: TwTypography.body(context).copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            displayName,
+                            style: TwTypography.body(
+                              context,
+                            ).copyWith(fontWeight: FontWeight.bold),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (isResbiteUser)
+                          Padding(
+                            padding: const EdgeInsets.only(left: 4.0),
+                            child: Text(
+                              'Resbite User',
+                              style: TwTypography.bodySm(context).copyWith(
+                                color: TwColors.success,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                     if (phoneNumbers.isNotEmpty || emails.isNotEmpty) ...[
                       const SizedBox(height: 4),
                       Text(
-                        phoneNumbers.isNotEmpty 
-                          ? phoneNumbers.first.toString()
-                          : emails.first.toString(),
+                        phoneNumbers.isNotEmpty
+                            ? phoneNumbers.first.toString()
+                            : emails.first.toString(),
                         style: TwTypography.bodySm(context).copyWith(
-                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withOpacity(0.7),
                         ),
                       ),
                     ],
                   ],
                 ),
               ),
-              
-              // Actions based on whether they're a Resbite user
-              if (isResbiteUser)
-                ShadButton.primary(
-                  text: 'Add Friend',
-                  size: ButtonSize.sm,
-                  onPressed: () {
-                    // Add as friend
-                    final resbiteUserId = contact['resbiteUserId'];
-                    if (resbiteUserId != null) {
-                      _addContactAsFriend(ref, resbiteUserId);
-                    }
-                  },
-                )
-              else
-                ShadButton.secondary(
-                  text: 'Invite',
-                  size: ButtonSize.sm,
-                  onPressed: () {
-                    // Invite to Resbite
-                    _inviteContactToApp(ref, context, contact);
-                  },
-                ),
+
+              // Action button based on user type
+              isResbiteUser
+                  ? ShadButton.primary(
+                    text: 'Add Friend',
+                    size: ButtonSize.sm,
+                    onPressed: () {
+                      final resbiteUserId = contact['resbiteUserId'];
+                      if (resbiteUserId != null) {
+                        _addContactAsFriend(ref, context, resbiteUserId);
+                      }
+                    },
+                  )
+                  : ShadButton.secondary(
+                    text: 'Invite',
+                    size: ButtonSize.sm,
+                    onPressed: () {
+                      _inviteContactToApp(ref, context, contact);
+                    },
+                  ),
             ],
           ),
         ),
@@ -179,41 +232,64 @@ class ContactsDisplay extends ConsumerWidget {
     );
   }
 
-  void _addContactAsFriend(WidgetRef ref, String userId) async {
-    try {
-      final friendService = ref.read(friendServiceProvider);
-      final success = await friendService.addContactAsFriend(userId);
-      
-      if (success) {
-        // Refresh the friends list
-        await ref.refresh(directFriendsProvider).value;
-      }
-    } catch (e) {
-      print('Error adding contact as friend: $e');
-    }
+  void _addContactAsFriend(WidgetRef ref, BuildContext context, String userId) {
+    // Use the modular friend service
+    final friendService = ref.read(friend_services.friendServiceProvider);
+    // Create a map with the correct format for addContactAsFriend
+    final contactMap = {'userId': userId, 'isResbiteUser': true};
+
+    // Execute the async operation without awaiting
+    friendService
+        .addContactAsFriend(contactMap)
+        .then((_) {
+          // Successfully completed - no need to refresh as it will update when user navigates
+          print('Successfully added friend with ID: $userId');
+          _showSnackBar(context, 'Friend added successfully', Colors.green);
+        })
+        .catchError((e) {
+          print('Error adding contact as friend: $e');
+          _showSnackBar(context, 'Failed to add friend', Colors.red);
+        });
   }
 
-  void _inviteContactToApp(WidgetRef ref, BuildContext context, Map<String, dynamic> contact) async {
-    try {
-      final friendService = ref.read(friendServiceProvider);
-      final success = await friendService.inviteContactToApp(contact);
-      
-      if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Invitation sent successfully'),
-            backgroundColor: TwColors.success,
-          ),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error sending invitation: ${e.toString()}'),
-          backgroundColor: TwColors.error,
-        ),
-      );
-    }
+  void _inviteContactToApp(
+    WidgetRef ref,
+    BuildContext context,
+    Map<String, dynamic> contact,
+  ) {
+    // Use the modular friend service
+    final friendService = ref.read(friend_services.friendServiceProvider);
+
+    // Execute the async operation without awaiting
+    friendService
+        .inviteContactToApp(contact)
+        .then((_) {
+          // Display success message on completion (void doesn't return a value)
+          _showSnackBar(
+            context,
+            'Invitation sent successfully',
+            TwColors.success,
+          );
+        })
+        .catchError((e) {
+          // Display error message
+          _showSnackBar(
+            context,
+            'Error sending invitation: ${e.toString()}',
+            TwColors.error,
+          );
+        });
+  }
+
+  // Helper method to show a snackbar
+  void _showSnackBar(
+    BuildContext context,
+    String message,
+    Color backgroundColor,
+  ) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: backgroundColor),
+    );
   }
 }
 

@@ -1,13 +1,14 @@
 /// This barrel file exports all UI components for easy importing
-/// 
+///
 /// Example usage:
 /// ```dart
 /// import 'package:resbite_app/components/ui.dart';
-/// 
+///
 /// // Now you can use any component:
 /// ShadButton.primary(text: 'Click me');
 /// ShadCard.elevated(title: 'Card title');
 /// ```
+library;
 
 export 'ui/avatar.dart';
 export 'ui/badge.dart';

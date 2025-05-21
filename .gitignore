@@ -89,3 +89,17 @@ key.properties
 # Avoid including large assets in the repository
 # Uncomment if you have large assets that shouldn't be versioned
 # /assets/large_assets/
+
+# Project-specific asset folders (design/reference material)
+/assets/Design exports/
+/assets/Experience/
+/assets/Resbites Illustrations/
+
+# Node.js dependencies
+/node_modules/
+assets/MVP Flowchart - V2.8.pdf
+policy.sql
+IMPLEMENTATION_PLAN.md
+.gitignore
+CODING_PATTERNS.md
+.gitignore

@@ -9,7 +9,8 @@ class ForgotPasswordScreen extends ConsumerStatefulWidget {
   const ForgotPasswordScreen({super.key});
 
   @override
-  ConsumerState<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
+  ConsumerState<ForgotPasswordScreen> createState() =>
+      _ForgotPasswordScreenState();
 }
 
 class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
@@ -51,12 +52,12 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     try {
       // Get auth service
       final authService = ref.read(authServiceProvider);
-      
+
       // Send password reset email
       await authService.resetPassword(_emailController.text.trim());
-      
+
       if (!mounted) return;
-      
+
       // Show success message
       setState(() {
         _emailSent = true;
@@ -82,10 +83,8 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
-      appBar: AppBar(
-        title: const Text('Reset Password'),
-      ),
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      appBar: AppBar(title: const Text('Reset Password')),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -95,12 +94,9 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Logo
-                Image.asset(
-                  AppConstants.logoPath,
-                  height: 80,
-                ),
+                Image.asset(AppConstants.logoPath, height: 80),
                 const SizedBox(height: 24),
-                
+
                 // Success message
                 if (_emailSent)
                   Column(
@@ -132,7 +128,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                       ),
                     ],
                   ),
-                
+
                 // Reset password form
                 if (!_emailSent)
                   Column(
@@ -141,14 +137,16 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                       // Title
                       Text(
                         'Forgot Password?',
-                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        style: Theme.of(
+                          context,
+                        ).textTheme.headlineMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: Theme.of(context).colorScheme.primary,
                         ),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 8),
-                      
+
                       // Subtitle
                       Text(
                         'Enter your email to receive a password reset link',
@@ -156,13 +154,15 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 32),
-                      
+
                       // Error message
                       if (_errorMessage != null)
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.error.withOpacity(0.1),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.error.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
@@ -174,7 +174,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                           ),
                         ),
                       if (_errorMessage != null) const SizedBox(height: 16),
-                      
+
                       // Form
                       Form(
                         key: _formKey,
@@ -196,23 +196,24 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                               onFieldSubmitted: (_) => _resetPassword(),
                             ),
                             const SizedBox(height: 24),
-                            
+
                             // Reset button
                             ElevatedButton(
                               onPressed: _isLoading ? null : _resetPassword,
-                              child: _isLoading
-                                  ? const SizedBox(
-                                      height: 20,
-                                      width: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: Colors.white,
-                                      ),
-                                    )
-                                  : const Text('Reset Password'),
+                              child:
+                                  _isLoading
+                                      ? const SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.white,
+                                        ),
+                                      )
+                                      : const Text('Reset Password'),
                             ),
                             const SizedBox(height: 16),
-                            
+
                             // Back to login link
                             TextButton(
                               onPressed: _isLoading ? null : _navigateToLogin,

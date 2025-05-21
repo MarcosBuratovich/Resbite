@@ -1,11 +1,10 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:json_annotation/json_annotation.dart';
 
 part 'place.freezed.dart';
 part 'place.g.dart';
 
 @freezed
-class Place with _$Place {
+abstract class Place with _$Place {
   const factory Place({
     required String id,
     required String name,
@@ -24,7 +23,7 @@ class Place with _$Place {
   }) = _Place;
 
   factory Place.fromJson(Map<String, dynamic> json) => _$PlaceFromJson(json);
-  
+
   static Place fromFirebase(Map<String, dynamic> json, String id) {
     // Handle latitude and longitude from Firebase GeoPoint
     double? lat;
@@ -33,18 +32,18 @@ class Place with _$Place {
       lat = json['latLng'].latitude;
       lng = json['latLng'].longitude;
     }
-    
+
     // Convert Firebase arrays to List<String>
     List<String> amenitiesList = [];
     if (json['amenities'] != null && json['amenities'] is List) {
       amenitiesList = List<String>.from(json['amenities']);
     }
-    
+
     List<String> imagesList = [];
     if (json['images'] != null && json['images'] is List) {
       imagesList = List<String>.from(json['images']);
     }
-    
+
     return Place(
       id: id,
       name: json['name'] ?? '',
@@ -58,12 +57,13 @@ class Place with _$Place {
       openingHours: json['openingHours'],
       images: imagesList,
       addedById: json['addedBy']?.id,
-      createdAt: json['createdAt'] != null 
-          ? (json['createdAt'] as dynamic).toDate() 
-          : DateTime.now(),
+      createdAt:
+          json['createdAt'] != null
+              ? (json['createdAt'] as dynamic).toDate()
+              : DateTime.now(),
     );
   }
-  
+
   static Place fromSupabase(Map<String, dynamic> json) {
     // Parse location from PostGIS point if available
     double? lat;
@@ -73,10 +73,13 @@ class Place with _$Place {
       if (json['location'] is Map) {
         lat = json['location']['coordinates'][1];
         lng = json['location']['coordinates'][0];
-      } 
+      }
       // Or if it's a string like POINT(lng lat)
-      else if (json['location'] is String && json['location'].startsWith('POINT')) {
-        final pointStr = json['location'].replaceAll('POINT(', '').replaceAll(')', '');
+      else if (json['location'] is String &&
+          json['location'].startsWith('POINT')) {
+        final pointStr = json['location']
+            .replaceAll('POINT(', '')
+            .replaceAll(')', '');
         final coords = pointStr.split(' ');
         if (coords.length == 2) {
           lng = double.tryParse(coords[0]);
@@ -84,7 +87,7 @@ class Place with _$Place {
         }
       }
     }
-    
+
     // Handle explicit lat/lng fields
     if (lat == null && json['latitude'] != null) {
       lat = json['latitude'].toDouble();
@@ -92,7 +95,7 @@ class Place with _$Place {
     if (lng == null && json['longitude'] != null) {
       lng = json['longitude'].toDouble();
     }
-    
+
     // Parse amenities from JSON
     List<String> amenitiesList = [];
     if (json['amenities'] != null) {
@@ -100,7 +103,7 @@ class Place with _$Place {
         amenitiesList = List<String>.from(json['amenities']);
       }
     }
-    
+
     // Parse images from JSON
     List<String> imagesList = [];
     if (json['images'] != null) {
@@ -108,7 +111,7 @@ class Place with _$Place {
         imagesList = List<String>.from(json['images']);
       }
     }
-    
+
     return Place(
       id: json['id'] ?? '',
       name: json['name'] ?? '',
@@ -122,12 +125,14 @@ class Place with _$Place {
       openingHours: json['opening_hours'],
       images: imagesList,
       addedById: json['added_by'],
-      createdAt: json['created_at'] != null 
-          ? DateTime.parse(json['created_at']) 
-          : null,
-      updatedAt: json['updated_at'] != null 
-          ? DateTime.parse(json['updated_at']) 
-          : null,
+      createdAt:
+          json['created_at'] != null
+              ? DateTime.parse(json['created_at'])
+              : null,
+      updatedAt:
+          json['updated_at'] != null
+              ? DateTime.parse(json['updated_at'])
+              : null,
     );
   }
 }

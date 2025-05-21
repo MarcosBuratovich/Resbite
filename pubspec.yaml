@@ -18,11 +18,8 @@ dependencies:
   google_fonts: ^6.1.0
   shimmer: ^3.0.0
   
-  # Firebase
-  firebase_core: ^3.13.0
-  firebase_auth: ^5.5.2
-  cloud_firestore: ^5.6.6
-  firebase_storage: ^12.4.5
+  # Firebase (removed - now using Supabase for authentication and storage)
+  # No longer needed after Supabase migration
   
   # Supabase
   supabase_flutter: ^2.3.1
@@ -66,7 +63,6 @@ flutter:
   
   assets:
     - assets/images/
-    - assets/icons/
     - assets/animations/
     - .env
     

@@ -3,45 +3,53 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // Main brand colors based on requirements
-  static const Color primaryColor = Color(0xFF89CAC7);     // Teal (#89CAC7)
-  static const Color secondaryColor = Color(0xFF462748);   // Purple (#462748)
-  static const Color tertiaryColor = Color(0xFFEFB0B4);    // Pink (#EFB0B4)
-  static const Color accentColor = tertiaryColor;          // For backward compatibility
-  static const Color lightTextColor = Color(0xFFFEFEFE);   // Almost white (#FEFEFE)
-  static const Color darkTextColor = Color(0xFF462748);    // Same as secondary (#462748)
-  
+  static const Color primaryColor = Color(0xFF89CAC7); // Teal (#89CAC7)
+  static const Color secondaryColor = Color(0xFF462748); // Purple (#462748)
+  static const Color tertiaryColor = Color(0xFFEFB0B4); // Pink (#EFB0B4)
+  static const Color accentColor = tertiaryColor; // For backward compatibility
+  static const Color lightTextColor = Color(
+    0xFFFEFEFE,
+  ); // Almost white (#FEFEFE)
+  static const Color darkTextColor = Color(
+    0xFF462748,
+  ); // Same as secondary (#462748)
+
   // Material Design 3 semantic colors
-  static const Color successColor = Color(0xFF43A047);     // Green
-  static const Color errorColor = Color(0xFFE53935);       // Red
-  static const Color warningColor = Color(0xFFFFA000);     // Amber
-  static const Color infoColor = Color(0xFF0288D1);        // Light blue
-  
+  static const Color successColor = Color(0xFF43A047); // Green
+  static const Color errorColor = Color(0xFFE53935); // Red
+  static const Color warningColor = Color(0xFFFFA000); // Amber
+  static const Color infoColor = Color(0xFF0288D1); // Light blue
+
   // Background and surface colors
-  static const Color backgroundLightColor = Colors.white;  
-  static const Color backgroundDarkColor = Color(0xFF121212); // MD3 recommended dark bg
+  static const Color backgroundLightColor = Colors.white;
+  static const Color backgroundDarkColor = Color(
+    0xFF121212,
+  ); // MD3 recommended dark bg
   static const Color surfaceLightColor = Colors.white;
-  static const Color surfaceDarkColor = Color(0xFF1F1F1F); // MD3 recommended dark surface
-  
+  static const Color surfaceDarkColor = Color(
+    0xFF1F1F1F,
+  ); // MD3 recommended dark surface
+
   // MD3 elevation colors
-  static Color getSurfaceContainerColor({bool isDark = false}) => 
+  static Color getSurfaceContainerColor({bool isDark = false}) =>
       isDark ? const Color(0xFF2D2D2D) : const Color(0xFFF5F5F5);
-  static Color getSurfaceContainerLowColor({bool isDark = false}) => 
+  static Color getSurfaceContainerLowColor({bool isDark = false}) =>
       isDark ? const Color(0xFF252525) : const Color(0xFFF8F8F8);
-  static Color getSurfaceContainerHighColor({bool isDark = false}) => 
+  static Color getSurfaceContainerHighColor({bool isDark = false}) =>
       isDark ? const Color(0xFF323232) : const Color(0xFFEEEEEE);
-      
+
   // Utility colors
   static const Color disabledColor = Color(0xFFBDBDBD);
-  
+
   // Gradient colors for decorative elements
   static const List<Color> primaryGradient = [
-    Color(0xFF89CAC7),                                    // Primary teal
-    Color(0xFF7EBAB7),                                    // Slightly darker teal
+    Color(0xFF89CAC7), // Primary teal
+    Color(0xFF7EBAB7), // Slightly darker teal
   ];
-  
+
   static const List<Color> accentGradient = [
-    Color(0xFFEFB0B4),                                    // Pink
-    Color(0xFFE8A0A4),                                    // Slightly darker pink
+    Color(0xFFEFB0B4), // Pink
+    Color(0xFFE8A0A4), // Slightly darker pink
   ];
 
   static ThemeData lightTheme = ThemeData(
@@ -54,42 +62,38 @@ class AppTheme {
       onPrimary: lightTextColor,
       primaryContainer: primaryColor.withOpacity(0.15),
       onPrimaryContainer: primaryColor.withOpacity(0.8),
-      
+
       // Secondary colors
       secondary: secondaryColor,
       onSecondary: lightTextColor,
       secondaryContainer: secondaryColor.withOpacity(0.15),
       onSecondaryContainer: secondaryColor.withOpacity(0.8),
-      
+
       // Tertiary colors
       tertiary: tertiaryColor,
       onTertiary: darkTextColor,
       tertiaryContainer: tertiaryColor.withOpacity(0.15),
       onTertiaryContainer: tertiaryColor.withOpacity(0.8),
-      
+
       // Error colors
       error: errorColor,
       onError: lightTextColor,
       errorContainer: errorColor.withOpacity(0.15),
       onErrorContainer: errorColor.withOpacity(0.8),
-      
-      // Background colors
-      background: backgroundLightColor,
-      onBackground: darkTextColor,
-      
+
       // Surface colors
       surface: surfaceLightColor,
       onSurface: darkTextColor,
-      surfaceVariant: getSurfaceContainerColor(),
+      surfaceContainerHighest: getSurfaceContainerColor(),
       onSurfaceVariant: darkTextColor.withOpacity(0.7),
       surfaceTint: primaryColor.withOpacity(0.05),
-      
+
       // Outline and shadow colors
       outline: darkTextColor.withOpacity(0.2),
       outlineVariant: darkTextColor.withOpacity(0.1),
       shadow: Colors.black.withOpacity(0.15),
       scrim: Colors.black.withOpacity(0.3),
-      
+
       // Inverse colors
       inverseSurface: darkTextColor,
       onInverseSurface: lightTextColor,
@@ -97,7 +101,9 @@ class AppTheme {
     ),
     scaffoldBackgroundColor: backgroundLightColor,
     fontFamily: 'Montserrat',
-    textTheme: GoogleFonts.montserratTextTheme(ThemeData.light().textTheme).copyWith(
+    textTheme: GoogleFonts.montserratTextTheme(
+      ThemeData.light().textTheme,
+    ).copyWith(
       // Display styles
       displayLarge: GoogleFonts.montserrat(
         fontWeight: FontWeight.bold,
@@ -120,7 +126,7 @@ class AppTheme {
         color: darkTextColor,
         height: 1.22,
       ),
-      
+
       // Headline styles
       headlineLarge: GoogleFonts.montserrat(
         fontWeight: FontWeight.bold,
@@ -143,7 +149,7 @@ class AppTheme {
         color: darkTextColor,
         height: 1.33,
       ),
-      
+
       // Title styles
       titleLarge: GoogleFonts.montserrat(
         fontWeight: FontWeight.w600,
@@ -166,7 +172,7 @@ class AppTheme {
         color: darkTextColor,
         height: 1.43,
       ),
-      
+
       // Body styles
       bodyLarge: GoogleFonts.montserrat(
         fontWeight: FontWeight.normal,
@@ -189,7 +195,7 @@ class AppTheme {
         color: darkTextColor.withOpacity(0.8),
         height: 1.33,
       ),
-      
+
       // Label styles
       labelLarge: GoogleFonts.montserrat(
         fontWeight: FontWeight.w600,
@@ -229,13 +235,10 @@ class AppTheme {
       surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12.0),
-        side: BorderSide(
-          color: darkTextColor.withOpacity(0.08),
-          width: 1,
-        ),
+        side: BorderSide(color: darkTextColor.withOpacity(0.08), width: 1),
       ),
     ),
-    
+
     // Material 3 Button Themes
     // Filled Button (primary action)
     elevatedButtonTheme: ElevatedButtonThemeData(
@@ -256,7 +259,7 @@ class AppTheme {
         ),
       ),
     ),
-    
+
     // Outlined Button (secondary action)
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
@@ -274,7 +277,7 @@ class AppTheme {
         ),
       ),
     ),
-    
+
     // Text Button (tertiary action)
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
@@ -291,7 +294,7 @@ class AppTheme {
         ),
       ),
     ),
-    
+
     // FilledButton (accent/alternate primary action)
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
@@ -330,7 +333,10 @@ class AppTheme {
         borderRadius: BorderRadius.circular(12.0),
         borderSide: BorderSide(color: errorColor, width: 1.0),
       ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 16.0,
+        vertical: 16.0,
+      ),
       floatingLabelBehavior: FloatingLabelBehavior.auto,
       prefixIconColor: darkTextColor.withOpacity(0.6),
       suffixIconColor: darkTextColor.withOpacity(0.6),
@@ -352,68 +358,70 @@ class AppTheme {
         color: darkTextColor.withOpacity(0.6),
         fontSize: 12,
       ),
-      errorStyle: GoogleFonts.montserrat(
-        color: errorColor,
-        fontSize: 12,
-      ),
+      errorStyle: GoogleFonts.montserrat(color: errorColor, fontSize: 12),
     ),
-    
+
     // Material 3 Switch Theme
     switchTheme: SwitchThemeData(
-      thumbColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
-        if (states.contains(MaterialState.disabled)) {
+      thumbColor: WidgetStateProperty.resolveWith<Color>((
+        Set<WidgetState> states,
+      ) {
+        if (states.contains(WidgetState.disabled)) {
           return disabledColor;
         }
-        if (states.contains(MaterialState.selected)) {
+        if (states.contains(WidgetState.selected)) {
           return primaryColor;
         }
         return Colors.white;
       }),
-      trackColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
-        if (states.contains(MaterialState.disabled)) {
+      trackColor: WidgetStateProperty.resolveWith<Color>((
+        Set<WidgetState> states,
+      ) {
+        if (states.contains(WidgetState.disabled)) {
           return disabledColor.withOpacity(0.12);
         }
-        if (states.contains(MaterialState.selected)) {
+        if (states.contains(WidgetState.selected)) {
           return primaryColor.withOpacity(0.3);
         }
         return darkTextColor.withOpacity(0.08);
       }),
-      trackOutlineColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
-        if (states.contains(MaterialState.disabled)) {
+      trackOutlineColor: WidgetStateProperty.resolveWith<Color>((
+        Set<WidgetState> states,
+      ) {
+        if (states.contains(WidgetState.disabled)) {
           return disabledColor.withOpacity(0.12);
         }
-        if (states.contains(MaterialState.selected)) {
+        if (states.contains(WidgetState.selected)) {
           return Colors.transparent;
         }
         return darkTextColor.withOpacity(0.12);
       }),
-      thumbIcon: MaterialStateProperty.resolveWith<Icon?>((Set<MaterialState> states) {
-        if (states.contains(MaterialState.selected)) {
+      thumbIcon: WidgetStateProperty.resolveWith<Icon?>((
+        Set<WidgetState> states,
+      ) {
+        if (states.contains(WidgetState.selected)) {
           return const Icon(Icons.check, size: 12, color: Colors.white);
         }
         return null;
       }),
     ),
-    
+
     // Material 3 Checkbox Theme
     checkboxTheme: CheckboxThemeData(
-      fillColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
-        if (states.contains(MaterialState.disabled)) {
+      fillColor: WidgetStateProperty.resolveWith<Color>((
+        Set<WidgetState> states,
+      ) {
+        if (states.contains(WidgetState.disabled)) {
           return disabledColor;
         }
-        if (states.contains(MaterialState.selected)) {
+        if (states.contains(WidgetState.selected)) {
           return primaryColor;
         }
         return Colors.transparent;
       }),
-      checkColor: MaterialStateProperty.all(Colors.white),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(2.0),
-      ),
-      side: BorderSide(
-        width: 1.5, 
-        color: darkTextColor.withOpacity(0.5),
-      ),
+      checkColor: WidgetStateProperty.all(Colors.white),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(2.0)),
+      side: BorderSide(width: 1.5, color: darkTextColor.withOpacity(0.5)),
     ),
     // Material 3 Tab Bar Theme
     tabBarTheme: TabBarTheme(
@@ -430,14 +438,16 @@ class AppTheme {
         fontWeight: FontWeight.w500,
         fontSize: 14,
       ),
-      overlayColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
-        if (states.contains(MaterialState.pressed)) {
+      overlayColor: WidgetStateProperty.resolveWith<Color>((
+        Set<WidgetState> states,
+      ) {
+        if (states.contains(WidgetState.pressed)) {
           return primaryColor.withOpacity(0.1);
         }
         return Colors.transparent;
       }),
     ),
-    
+
     // Material 3 Bottom Navigation Bar Theme
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
       backgroundColor: surfaceLightColor,
@@ -455,20 +465,24 @@ class AppTheme {
       ),
       landscapeLayout: BottomNavigationBarLandscapeLayout.centered,
     ),
-    
+
     // Navigation Bar (Material 3's preferred bottom nav)
     navigationBarTheme: NavigationBarThemeData(
       backgroundColor: surfaceLightColor,
       surfaceTintColor: Colors.transparent,
       indicatorColor: primaryColor.withOpacity(0.1),
-      iconTheme: MaterialStateProperty.resolveWith<IconThemeData>((Set<MaterialState> states) {
-        if (states.contains(MaterialState.selected)) {
+      iconTheme: WidgetStateProperty.resolveWith<IconThemeData>((
+        Set<WidgetState> states,
+      ) {
+        if (states.contains(WidgetState.selected)) {
           return IconThemeData(color: primaryColor);
         }
         return IconThemeData(color: darkTextColor.withOpacity(0.6));
       }),
-      labelTextStyle: MaterialStateProperty.resolveWith<TextStyle>((Set<MaterialState> states) {
-        if (states.contains(MaterialState.selected)) {
+      labelTextStyle: WidgetStateProperty.resolveWith<TextStyle>((
+        Set<WidgetState> states,
+      ) {
+        if (states.contains(WidgetState.selected)) {
           return GoogleFonts.montserrat(
             fontSize: 12,
             fontWeight: FontWeight.w600,
@@ -485,7 +499,7 @@ class AppTheme {
       height: 60,
       labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
     ),
-    
+
     // Material 3 Divider Theme
     dividerTheme: DividerThemeData(
       color: darkTextColor.withOpacity(0.12),
@@ -513,28 +527,21 @@ class AppTheme {
         color: lightTextColor,
         height: 1.3,
       ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       side: BorderSide.none,
       shadowColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,
-      iconTheme: IconThemeData(
-        color: darkTextColor,
-        size: 18,
-      ),
+      iconTheme: IconThemeData(color: darkTextColor, size: 18),
       checkmarkColor: lightTextColor,
       deleteIconColor: darkTextColor.withOpacity(0.7),
     ),
-    
+
     // Material 3 Dialog Theme
     dialogTheme: DialogTheme(
       backgroundColor: surfaceLightColor,
       elevation: 3,
       shadowColor: Colors.black.withOpacity(0.2),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(28),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       alignment: Alignment.center,
       titleTextStyle: GoogleFonts.montserrat(
         fontSize: 24,
@@ -549,7 +556,7 @@ class AppTheme {
       ),
       surfaceTintColor: Colors.transparent,
     ),
-    
+
     // Material 3 Floating Action Button Theme
     floatingActionButtonTheme: FloatingActionButtonThemeData(
       backgroundColor: tertiaryColor,
@@ -563,10 +570,7 @@ class AppTheme {
       disabledElevation: 0,
       highlightElevation: 2,
       enableFeedback: true,
-      sizeConstraints: const BoxConstraints.tightFor(
-        width: 56,
-        height: 56,
-      ),
+      sizeConstraints: const BoxConstraints.tightFor(width: 56, height: 56),
       iconSize: 24,
       extendedIconLabelSpacing: 12,
       extendedPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -581,41 +585,46 @@ class AppTheme {
         letterSpacing: 0.1,
       ),
     ),
-    
+
     // Material 3 Segmented Button Theme
     segmentedButtonTheme: SegmentedButtonThemeData(
       style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
-          if (states.contains(MaterialState.selected)) {
+        backgroundColor: WidgetStateProperty.resolveWith<Color>((
+          Set<WidgetState> states,
+        ) {
+          if (states.contains(WidgetState.selected)) {
             return primaryColor;
           }
           return surfaceLightColor;
         }),
-        foregroundColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
-          if (states.contains(MaterialState.selected)) {
+        foregroundColor: WidgetStateProperty.resolveWith<Color>((
+          Set<WidgetState> states,
+        ) {
+          if (states.contains(WidgetState.selected)) {
             return lightTextColor;
           }
           return darkTextColor;
         }),
-        side: MaterialStateProperty.all(BorderSide(
-          color: primaryColor,
-          width: 1,
-        )),
-        shape: MaterialStateProperty.all(RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        )),
-        padding: MaterialStateProperty.all(
+        side: WidgetStateProperty.all(
+          BorderSide(color: primaryColor, width: 1),
+        ),
+        shape: WidgetStateProperty.all(
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+        padding: WidgetStateProperty.all(
           const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         ),
-        textStyle: MaterialStateProperty.all(GoogleFonts.montserrat(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 0.1,
-        )),
+        textStyle: WidgetStateProperty.all(
+          GoogleFonts.montserrat(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.1,
+          ),
+        ),
       ),
     ),
   );
-  
+
   static ThemeData darkTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
@@ -625,18 +634,18 @@ class AppTheme {
       secondary: accentColor,
       tertiary: secondaryColor,
       error: errorColor,
-      background: backgroundDarkColor,
       surface: surfaceDarkColor,
       onPrimary: lightTextColor,
       onSecondary: darkTextColor,
       onTertiary: lightTextColor,
-      onBackground: lightTextColor,
       onSurface: lightTextColor,
       onError: lightTextColor,
     ),
     scaffoldBackgroundColor: backgroundDarkColor,
     fontFamily: 'Montserrat',
-    textTheme: GoogleFonts.montserratTextTheme(ThemeData.dark().textTheme).copyWith(
+    textTheme: GoogleFonts.montserratTextTheme(
+      ThemeData.dark().textTheme,
+    ).copyWith(
       displayLarge: GoogleFonts.montserrat(
         fontWeight: FontWeight.bold,
         fontSize: 32,
@@ -734,18 +743,14 @@ class AppTheme {
       elevation: 0,
       centerTitle: true,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          bottom: Radius.circular(16),
-        ),
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
       ),
     ),
     cardTheme: CardTheme(
       color: surfaceDarkColor,
       elevation: 1.5,
       shadowColor: Colors.black.withOpacity(0.3),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16.0),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
@@ -794,7 +799,10 @@ class AppTheme {
         borderRadius: BorderRadius.circular(12.0),
         borderSide: const BorderSide(color: errorColor, width: 1.5),
       ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 16.0,
+        vertical: 16.0,
+      ),
       floatingLabelBehavior: FloatingLabelBehavior.auto,
       prefixIconColor: Colors.grey.shade400,
       suffixIconColor: Colors.grey.shade400,
@@ -814,39 +822,43 @@ class AppTheme {
       ),
     ),
     switchTheme: SwitchThemeData(
-      thumbColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
-        if (states.contains(MaterialState.disabled)) {
+      thumbColor: WidgetStateProperty.resolveWith<Color>((
+        Set<WidgetState> states,
+      ) {
+        if (states.contains(WidgetState.disabled)) {
           return disabledColor;
         }
-        if (states.contains(MaterialState.selected)) {
+        if (states.contains(WidgetState.selected)) {
           return primaryColor;
         }
         return Colors.white;
       }),
-      trackColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
-        if (states.contains(MaterialState.disabled)) {
+      trackColor: WidgetStateProperty.resolveWith<Color>((
+        Set<WidgetState> states,
+      ) {
+        if (states.contains(WidgetState.disabled)) {
           return disabledColor.withOpacity(0.48);
         }
-        if (states.contains(MaterialState.selected)) {
+        if (states.contains(WidgetState.selected)) {
           return primaryColor.withOpacity(0.48);
         }
         return Colors.grey.withOpacity(0.48);
       }),
-      trackOutlineColor: MaterialStateProperty.all(Colors.transparent),
+      trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
     ),
     checkboxTheme: CheckboxThemeData(
-      fillColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
-        if (states.contains(MaterialState.disabled)) {
+      fillColor: WidgetStateProperty.resolveWith<Color>((
+        Set<WidgetState> states,
+      ) {
+        if (states.contains(WidgetState.disabled)) {
           return disabledColor;
         }
-        if (states.contains(MaterialState.selected)) {
+        if (states.contains(WidgetState.selected)) {
           return primaryColor;
         }
         return Colors.transparent;
       }),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(4.0),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4.0)),
     ),
     tabBarTheme: TabBarTheme(
       labelColor: primaryColor,
@@ -898,16 +910,12 @@ class AppTheme {
         fontWeight: FontWeight.w500,
         color: primaryColor,
       ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
     ),
     dialogTheme: DialogTheme(
       backgroundColor: surfaceDarkColor,
       elevation: 8,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       titleTextStyle: GoogleFonts.montserrat(
         fontSize: 20,
         fontWeight: FontWeight.bold,
@@ -921,12 +929,10 @@ class AppTheme {
     floatingActionButtonTheme: FloatingActionButtonThemeData(
       backgroundColor: accentColor,
       foregroundColor: darkTextColor,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
     ),
   );
-  
+
   // Helper methods for gradients and shadows
   static BoxDecoration gradientBoxDecoration({
     bool primary = true,
@@ -941,7 +947,10 @@ class AppTheme {
       borderRadius: BorderRadius.circular(borderRadius),
       boxShadow: [
         BoxShadow(
-          color: primary ? primaryColor.withOpacity(0.3) : accentColor.withOpacity(0.3),
+          color:
+              primary
+                  ? primaryColor.withOpacity(0.3)
+                  : accentColor.withOpacity(0.3),
           spreadRadius: 1,
           blurRadius: 10,
           offset: const Offset(0, 4),
@@ -949,14 +958,14 @@ class AppTheme {
       ],
     );
   }
-  
+
   static BoxDecoration cardBoxDecoration({
     required BuildContext context,
     double borderRadius = 16.0,
     double elevation = 1.5,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return BoxDecoration(
       color: isDark ? surfaceDarkColor : surfaceLightColor,
       borderRadius: BorderRadius.circular(borderRadius),
@@ -970,7 +979,7 @@ class AppTheme {
       ],
     );
   }
-  
+
   // Specific helper for primary background with white text
   static BoxDecoration primaryWithLightTextDecoration({
     double borderRadius = 16.0,
@@ -988,7 +997,7 @@ class AppTheme {
       ],
     );
   }
-  
+
   // Specific helper for white background with purple text
   static BoxDecoration whiteWithDarkTextDecoration({
     double borderRadius = 16.0,
@@ -1006,11 +1015,9 @@ class AppTheme {
       ],
     );
   }
-  
+
   // Accent (pink) decoration
-  static BoxDecoration accentDecoration({
-    double borderRadius = 16.0,
-  }) {
+  static BoxDecoration accentDecoration({double borderRadius = 16.0}) {
     return BoxDecoration(
       color: accentColor,
       borderRadius: BorderRadius.circular(borderRadius),

@@ -10,7 +10,7 @@ part 'resbite.g.dart';
 enum ResbiteStatus { planned, active, completed, cancelled }
 
 @freezed
-class Resbite with _$Resbite {
+abstract class Resbite with _$Resbite {
   const factory Resbite({
     required String id,
     required String title,
@@ -38,9 +38,12 @@ class Resbite with _$Resbite {
     @Default([]) List<User> participants,
   }) = _Resbite;
 
-  factory Resbite.fromJson(Map<String, dynamic> json) => _$ResbiteFromJson(json);
-  
-  static Resbite fromFirebase(Map<String, dynamic> json, String id, {
+  factory Resbite.fromJson(Map<String, dynamic> json) =>
+      _$ResbiteFromJson(json);
+
+  static Resbite fromFirebase(
+    Map<String, dynamic> json,
+    String id, {
     Activity? activity,
     User? owner,
     Place? place,
@@ -53,13 +56,13 @@ class Resbite with _$Resbite {
       meetingLat = json['placeLatLong'].latitude;
       meetingLng = json['placeLatLong'].longitude;
     }
-    
+
     // Convert Firebase arrays to List<String>
     List<String> imagesList = [];
     if (json['images'] != null && json['images'] is List) {
       imagesList = List<String>.from(json['images']);
     }
-    
+
     // Parse dates
     DateTime startDate;
     if (json['startDate'] != null) {
@@ -67,18 +70,18 @@ class Resbite with _$Resbite {
     } else {
       startDate = DateTime.now();
     }
-    
+
     DateTime endDate;
     if (json['endDate'] != null) {
       endDate = (json['endDate'] as dynamic).toDate();
     } else {
       endDate = startDate.add(const Duration(hours: 2));
     }
-    
+
     // Parse status
     ResbiteStatus status = ResbiteStatus.planned;
     if (json['status'] != null) {
-      switch(json['status'].toString().toLowerCase()) {
+      switch (json['status'].toString().toLowerCase()) {
         case 'active':
           status = ResbiteStatus.active;
           break;
@@ -92,7 +95,7 @@ class Resbite with _$Resbite {
           status = ResbiteStatus.planned;
       }
     }
-    
+
     return Resbite(
       id: id,
       title: json['title'] ?? 'Resbite',
@@ -114,14 +117,16 @@ class Resbite with _$Resbite {
       owner: owner,
       placeId: json['placeResbite']?.id,
       place: place,
-      createdAt: json['createdAt'] != null 
-          ? (json['createdAt'] as dynamic).toDate() 
-          : DateTime.now(),
+      createdAt:
+          json['createdAt'] != null
+              ? (json['createdAt'] as dynamic).toDate()
+              : DateTime.now(),
       participants: participants ?? [],
     );
   }
-  
-  static Resbite fromSupabase(Map<String, dynamic> json, {
+
+  static Resbite fromSupabase(
+    Map<String, dynamic> json, {
     Activity? activity,
     User? owner,
     Place? place,
@@ -135,10 +140,13 @@ class Resbite with _$Resbite {
       if (json['meeting_location'] is Map) {
         meetingLat = json['meeting_location']['coordinates'][1];
         meetingLng = json['meeting_location']['coordinates'][0];
-      } 
+      }
       // Or if it's a string like POINT(lng lat)
-      else if (json['meeting_location'] is String && json['meeting_location'].startsWith('POINT')) {
-        final pointStr = json['meeting_location'].replaceAll('POINT(', '').replaceAll(')', '');
+      else if (json['meeting_location'] is String &&
+          json['meeting_location'].startsWith('POINT')) {
+        final pointStr = json['meeting_location']
+            .replaceAll('POINT(', '')
+            .replaceAll(')', '');
         final coords = pointStr.split(' ');
         if (coords.length == 2) {
           meetingLng = double.tryParse(coords[0]);
@@ -146,7 +154,7 @@ class Resbite with _$Resbite {
         }
       }
     }
-    
+
     // Parse images from JSON
     List<String> imagesList = [];
     if (json['images'] != null) {
@@ -154,7 +162,7 @@ class Resbite with _$Resbite {
         imagesList = List<String>.from(json['images']);
       }
     }
-    
+
     // Parse dates
     DateTime startDate;
     if (json['start_date'] != null) {
@@ -162,18 +170,18 @@ class Resbite with _$Resbite {
     } else {
       startDate = DateTime.now();
     }
-    
+
     DateTime endDate;
     if (json['end_date'] != null) {
       endDate = DateTime.parse(json['end_date']);
     } else {
       endDate = startDate.add(const Duration(hours: 2));
     }
-    
+
     // Parse status
     ResbiteStatus status = ResbiteStatus.planned;
     if (json['status'] != null) {
-      switch(json['status'].toString().toLowerCase()) {
+      switch (json['status'].toString().toLowerCase()) {
         case 'active':
           status = ResbiteStatus.active;
           break;
@@ -187,7 +195,7 @@ class Resbite with _$Resbite {
           status = ResbiteStatus.planned;
       }
     }
-    
+
     return Resbite(
       id: json['id'] ?? '',
       title: json['title'] ?? 'Resbite',
@@ -210,12 +218,14 @@ class Resbite with _$Resbite {
       owner: owner,
       placeId: json['place_id'],
       place: place,
-      createdAt: json['created_at'] != null 
-          ? DateTime.parse(json['created_at']) 
-          : DateTime.now(),
-      updatedAt: json['updated_at'] != null 
-          ? DateTime.parse(json['updated_at']) 
-          : DateTime.now(),
+      createdAt:
+          json['created_at'] != null
+              ? DateTime.parse(json['created_at'])
+              : DateTime.now(),
+      updatedAt:
+          json['updated_at'] != null
+              ? DateTime.parse(json['updated_at'])
+              : DateTime.now(),
       participants: participants ?? [],
     );
   }

@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 
 // Screen imports will go here
 import '../ui/screens/auth/login_screen.dart';
-import '../ui/screens/auth/register_screen.dart';
+import '../ui/screens/auth/register/register_screen.dart';
 import '../ui/screens/auth/forgot_password_screen.dart';
 import '../ui/screens/splash_screen.dart';
 import '../ui/screens/onboarding_screen.dart';
 import '../ui/screens/home_screen.dart';
 import '../ui/screens/profile_screen.dart';
 import '../ui/screens/activities/activities_screen.dart';
+// Primary activities screen implementation is used
 import '../ui/screens/activities/activity_details_screen.dart';
 import '../ui/screens/activities/start_resbite_screen.dart';
 import '../ui/screens/resbites/resbites_screen.dart';

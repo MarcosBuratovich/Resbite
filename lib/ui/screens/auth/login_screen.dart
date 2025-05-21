@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:resbite_app/components/ui.dart';
-import 'package:resbite_app/components/ui/button.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 
 import '../../../config/constants.dart';
-import '../../../config/theme.dart';
 import '../../../services/providers.dart';
 import '../../../utils/logger.dart';
 import '../../../styles/tailwind_theme.dart';
@@ -67,41 +68,58 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     try {
       // Get auth service
       final authService = ref.read(authServiceProvider);
-      
-      AppLogger.error('Attempting to sign in with email: ${_emailController.text.trim()}', null, null);
-      
+
+      AppLogger.error(
+        'Attempting to sign in with email: ${_emailController.text.trim()}',
+        null,
+        null,
+      );
+
       // Sign in with email and password
-      final user = await authService.signInWithEmailAndPassword(
+      await authService.signInWithEmailAndPassword(
         _emailController.text.trim(),
         _passwordController.text,
       );
-      
+
       if (!mounted) return;
-      
-      if (user != null) {
-        AppLogger.error('Sign in successful. User: ${user.id}', null, null);
-        
-        // Auth status has changed, wait a moment for it to propagate through providers
-        await Future.delayed(const Duration(milliseconds: 300));
-        
-        // Check current auth status before navigating
-        final currentStatus = authService.status;
-        AppLogger.error('Current auth status before navigation: $currentStatus', null, null);
-        
-        if (currentStatus == AuthStatus.authenticated) {
-          // Navigate to home screen on success
-          Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
-        } else {
+
+      // Auth status has changed, wait a moment for it to propagate through providers
+      // The onAuthStateChange listener in AuthService will update the status.
+      await Future.delayed(const Duration(milliseconds: 300));
+
+      // Check current auth status before navigating
+      final currentStatus = authService.status;
+      AppLogger.error(
+        'Current auth status after sign-in attempt: $currentStatus',
+        null,
+        null,
+      );
+
+      if (currentStatus == AuthStatus.authenticated) {
+        AppLogger.info('Sign in successful. Navigating to home.');
+        // Navigate to home screen on success
+        Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
+      } else {
+        // If not authenticated, it means sign-in failed (e.g. wrong credentials)
+        // The error should have been caught by the try-catch block in _signIn or displayed by Supabase.
+        // We can set a generic error message here if not already handled by a catch.
+        if (mounted && _errorMessage == null) { // Only set if no specific error was caught
           setState(() {
-            _errorMessage = 'Authentication state inconsistent. Please try again.';
+            _errorMessage = 'Sign-in failed. Please check your credentials.';
           });
         }
-      } else {
-        AppLogger.error('Sign in returned null user', null, null);
-        setState(() {
-          _errorMessage = 'Failed to sign in. Please check your credentials.';
-        });
+        AppLogger.error(
+          'Sign in failed or auth status not updated. Status: $currentStatus',
+          null,
+          null,
+        );
       }
+    } on supabase.AuthException catch (e) {
+      AppLogger.error('Sign in failed with AuthException: ${e.message}', e,
+          StackTrace.current);
+      setState(() {
+        _errorMessage = 'Error: ${e.message}';
+      });
     } catch (e) {
       AppLogger.error('Login error', e);
       setState(() {
@@ -128,67 +146,67 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Center(
           child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Theme.of(context).colorScheme.background, Theme.of(context).colorScheme.background.withOpacity(0.8)],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-            ),
+            decoration: const BoxDecoration(color: Colors.white),
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Logo
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
-                          blurRadius: 15,
-                          spreadRadius: 5,
+                  // Header illustration
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: SvgPicture.asset(
+                          'assets/Resbites Illustrations/SVGs/Artboard 5.svg',
+                          height: 180,
+                        )
+                        .animate()
+                        .fadeIn(duration: 600.ms, delay: 300.ms)
+                        .slideY(
+                          begin: -0.2,
+                          end: 0,
+                          duration: 800.ms,
+                          curve: Curves.easeOutQuad,
                         ),
-                      ],
-                    ),
-                    child: Image.asset(
-                      AppConstants.logoPath,
-                      height: 100,
-                    ),
                   ),
-                  const SizedBox(height: 24),
-                  
+                  const SizedBox(height: 32),
+
                   // Title
                   Text(
                     'Welcome Back',
-                    style: TwTypography.heading3(context).copyWith(
+                    style: TextStyle(
+                      fontFamily: 'Montserrat',
+                      fontSize: 28,
                       fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.primary,
+                      color: const Color(0xFF462748), // Purple from design
                     ),
                     textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
-                  
+                  ).animate().fadeIn(duration: 600.ms, delay: 500.ms),
+                  const SizedBox(height: 12),
+
                   // Subtitle
                   Text(
-                    'Sign in to continue',
-                    style: TwTypography.body(context),
+                    'Sign in to your Resbite account',
+                    style: TextStyle(
+                      fontFamily: 'Quicksand',
+                      fontSize: 16,
+                      color: Colors.black54,
+                      fontWeight: FontWeight.w500,
+                    ),
                     textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 32),
-                  
+                  ).animate().fadeIn(duration: 600.ms, delay: 600.ms),
+                  const SizedBox(height: 40),
+
                   // Error message
                   if (_errorMessage != null)
                     ShadCard(
-                      backgroundColor: Theme.of(context).colorScheme.error.withOpacity(0.1),
+                      backgroundColor: Theme.of(
+                        context,
+                      ).colorScheme.error.withOpacity(0.1),
                       hasBorder: true,
                       padding: const EdgeInsets.all(12),
                       child: Row(
@@ -211,7 +229,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                     ),
                   if (_errorMessage != null) const SizedBox(height: 16),
-                  
+
                   // Login form
                   Form(
                     key: _formKey,
@@ -219,61 +237,110 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         // Email field
-                        ShadInput.email(
-                          controller: _emailController,
-                          labelText: 'Email',
-                          hintText: 'Enter your email',
-                          enabled: !_isLoading,
-                          validator: _validateEmail,
+                        Animate(
+                          effects: [
+                            FadeEffect(duration: 600.ms, delay: 700.ms),
+                            SlideEffect(
+                              begin: const Offset(0.2, 0),
+                              end: const Offset(0, 0),
+                              duration: 600.ms,
+                              delay: 700.ms,
+                            ),
+                          ],
+                          child: ShadInput.email(
+                            controller: _emailController,
+                            labelText: 'Email',
+                            hintText: 'Enter your email',
+                            enabled: !_isLoading,
+                            validator: _validateEmail,
+                          ),
                         ),
-                        const SizedBox(height: 16),
-                        
+                        const SizedBox(height: 20),
+
                         // Password field
-                        ShadInput.password(
-                          controller: _passwordController,
-                          labelText: 'Password',
-                          hintText: 'Enter your password',
-                          enabled: !_isLoading,
-                          validator: _validatePassword,
-                          onSubmitted: (_) => _signIn(),
+                        Animate(
+                          effects: [
+                            FadeEffect(duration: 600.ms, delay: 800.ms),
+                            SlideEffect(
+                              begin: const Offset(0.2, 0),
+                              end: const Offset(0, 0),
+                              duration: 600.ms,
+                              delay: 800.ms,
+                            ),
+                          ],
+                          child: ShadInput.password(
+                            controller: _passwordController,
+                            labelText: 'Password',
+                            hintText: 'Enter your password',
+                            enabled: !_isLoading,
+                            validator: _validatePassword,
+                            onSubmitted: (_) => _signIn(),
+                          ),
                         ),
-                        const SizedBox(height: 8),
-                        
+                        const SizedBox(height: 12),
+
                         // Forgot password link
                         Align(
                           alignment: Alignment.centerRight,
-                          child: ShadButton.link(
-                            text: 'Forgot Password?',
-                            onPressed: _isLoading ? null : _navigateToForgotPassword,
-                            size: ButtonSize.sm,
+                          child: Animate(
+                            effects: [
+                              FadeEffect(duration: 400.ms, delay: 900.ms),
+                            ],
+                            child: ShadButton.link(
+                              text: 'Forgot Password?',
+                              onPressed:
+                                  _isLoading ? null : _navigateToForgotPassword,
+                              size: ButtonSize.sm,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 32),
+
+                        // Sign in button
+                        Animate(
+                          effects: [
+                            FadeEffect(duration: 600.ms, delay: 1000.ms),
+                            ScaleEffect(
+                              begin: const Offset(0.95, 0.95),
+                              end: const Offset(1, 1),
+                              duration: 600.ms,
+                              delay: 1000.ms,
+                            ),
+                          ],
+                          child: ShadButton.primary(
+                            text: 'Sign In',
+                            onPressed: _isLoading ? null : _signIn,
+                            isLoading: _isLoading,
+                            size: ButtonSize.lg,
+                            isFullWidth: true,
                           ),
                         ),
                         const SizedBox(height: 24),
-                        
-                        // Sign in button
-                        ShadButton.primary(
-                          text: 'Sign In',
-                          onPressed: _isLoading ? null : _signIn,
-                          isLoading: _isLoading,
-                          size: ButtonSize.lg,
-                          isFullWidth: true,
-                        ),
-                        const SizedBox(height: 16),
-                        
+
                         // Register link
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "Don't have an account?",
-                              style: TwTypography.bodySm(context),
-                            ),
-                            ShadButton.link(
-                              text: 'Sign Up',
-                              onPressed: _isLoading ? null : _navigateToRegister,
-                              size: ButtonSize.sm,
-                            ),
+                        Animate(
+                          effects: [
+                            FadeEffect(duration: 600.ms, delay: 1100.ms),
                           ],
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "Don't have an account?",
+                                style: TextStyle(
+                                  fontFamily: 'Quicksand',
+                                  fontSize: 14,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                              ShadButton.link(
+                                text: 'Sign Up',
+                                onPressed:
+                                    _isLoading ? null : _navigateToRegister,
+                                size: ButtonSize.sm,
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),

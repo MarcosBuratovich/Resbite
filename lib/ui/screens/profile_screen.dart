@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'dart:io';
+// import 'dart:io'; - No longer needed
 
 import '../../config/theme.dart';
 import '../../models/user.dart';
 import '../../services/providers.dart';
-import '../../utils/logger.dart';
+// import '../../utils/logger.dart'; - No longer needed
 import '../../ui/components/resbite_button.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
@@ -16,7 +16,6 @@ class ProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
-  bool _isLoading = false;
 
   @override
   void initState() {
@@ -36,15 +35,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       user = providerUser;
     }
     
-    // Try Firebase user as another fallback
-    if (user == null && authService.firebaseUser != null) {
-      final firebaseUser = authService.firebaseUser!;
-      user = User(
-        id: firebaseUser.uid,
-        email: firebaseUser.email ?? '',
-        displayName: firebaseUser.displayName,
-        emailVerified: firebaseUser.emailVerified,
-      );
+    // Try Supabase user as another fallback
+    if (user == null) {
+      final supabaseUser = ref.read(supabaseClientProvider).auth.currentUser;
+      if (supabaseUser != null) {
+        user = User.fromSupabaseUser(supabaseUser);
+      }
     }
     
     // Create a fallback user with default values if we still don't have user data

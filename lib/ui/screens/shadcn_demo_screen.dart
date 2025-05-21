@@ -19,7 +19,7 @@ class _ShadcnDemoScreenState extends State<ShadcnDemoScreen> {
   final _textController = TextEditingController();
   final _emailController = TextEditingController(text: 'example@email.com');
   final _passwordController = TextEditingController(text: 'password123');
-  
+
   @override
   void dispose() {
     _textController.dispose();
@@ -37,35 +37,17 @@ class _ShadcnDemoScreenState extends State<ShadcnDemoScreen> {
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSection(
-            'Typography',
-            _buildTypographyShowcase(),
-          ),
-          
-          _buildSection(
-            'Buttons',
-            _buildButtonsShowcase(),
-          ),
-          
-          _buildSection(
-            'Input Fields',
-            _buildInputsShowcase(),
-          ),
-          
-          _buildSection(
-            'Cards',
-            _buildCardsShowcase(),
-          ),
-          
-          _buildSection(
-            'Badges',
-            _buildBadgesShowcase(),
-          ),
-          
-          _buildSection(
-            'Avatars',
-            _buildAvatarsShowcase(),
-          ),
+          _buildSection('Typography', _buildTypographyShowcase()),
+
+          _buildSection('Buttons', _buildButtonsShowcase()),
+
+          _buildSection('Input Fields', _buildInputsShowcase()),
+
+          _buildSection('Cards', _buildCardsShowcase()),
+
+          _buildSection('Badges', _buildBadgesShowcase()),
+
+          _buildSection('Avatars', _buildAvatarsShowcase()),
         ],
       ),
       actions: [
@@ -81,9 +63,9 @@ class _ShadcnDemoScreenState extends State<ShadcnDemoScreen> {
               SnackBar(
                 content: Text(
                   'Components saved successfully!',
-                  style: TwTypography.body(context).copyWith(
-                    color: Colors.white,
-                  ),
+                  style: TwTypography.body(
+                    context,
+                  ).copyWith(color: Colors.white),
                 ),
                 backgroundColor: TwColors.success,
               ),
@@ -94,7 +76,7 @@ class _ShadcnDemoScreenState extends State<ShadcnDemoScreen> {
       ],
     );
   }
-  
+
   Widget _buildSection(String title, Widget content) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -113,7 +95,7 @@ class _ShadcnDemoScreenState extends State<ShadcnDemoScreen> {
       ],
     );
   }
-  
+
   Widget _buildTypographyShowcase() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -144,7 +126,7 @@ class _ShadcnDemoScreenState extends State<ShadcnDemoScreen> {
       ],
     );
   }
-  
+
   Widget _buildButtonsShowcase() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -154,31 +136,16 @@ class _ShadcnDemoScreenState extends State<ShadcnDemoScreen> {
           spacing: 8,
           runSpacing: 12,
           children: [
-            ShadButton.primary(
-              text: 'Primary',
-              onPressed: () {},
-            ),
-            ShadButton.secondary(
-              text: 'Secondary',
-              onPressed: () {},
-            ),
-            ShadButton.ghost(
-              text: 'Ghost',
-              onPressed: () {},
-            ),
-            ShadButton.destructive(
-              text: 'Destructive',
-              onPressed: () {},
-            ),
-            ShadButton.link(
-              text: 'Link',
-              onPressed: () {},
-            ),
+            ShadButton.primary(text: 'Primary', onPressed: () {}),
+            ShadButton.secondary(text: 'Secondary', onPressed: () {}),
+            ShadButton.ghost(text: 'Ghost', onPressed: () {}),
+            ShadButton.destructive(text: 'Destructive', onPressed: () {}),
+            ShadButton.link(text: 'Link', onPressed: () {}),
           ],
         ),
-        
+
         const SizedBox(height: 20),
-        
+
         // Button sizes
         Wrap(
           spacing: 8,
@@ -190,10 +157,7 @@ class _ShadcnDemoScreenState extends State<ShadcnDemoScreen> {
               size: ButtonSize.sm,
               onPressed: () {},
             ),
-            ShadButton.primary(
-              text: 'Medium',
-              onPressed: () {},
-            ),
+            ShadButton.primary(text: 'Medium', onPressed: () {}),
             ShadButton.primary(
               text: 'Large',
               size: ButtonSize.lg,
@@ -201,9 +165,9 @@ class _ShadcnDemoScreenState extends State<ShadcnDemoScreen> {
             ),
           ],
         ),
-        
+
         const SizedBox(height: 20),
-        
+
         // Buttons with icons
         Wrap(
           spacing: 8,
@@ -222,9 +186,9 @@ class _ShadcnDemoScreenState extends State<ShadcnDemoScreen> {
             ),
           ],
         ),
-        
+
         const SizedBox(height: 20),
-        
+
         // Loading and disabled buttons
         Wrap(
           spacing: 8,
@@ -235,20 +199,14 @@ class _ShadcnDemoScreenState extends State<ShadcnDemoScreen> {
               isLoading: true,
               onPressed: () {},
             ),
-            ShadButton.primary(
-              text: 'Disabled',
-              onPressed: null,
-            ),
-            ShadButton.secondary(
-              text: 'Disabled',
-              onPressed: null,
-            ),
+            ShadButton.primary(text: 'Disabled', onPressed: null),
+            ShadButton.secondary(text: 'Disabled', onPressed: null),
           ],
         ),
       ],
     );
   }
-  
+
   Widget _buildInputsShowcase() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -260,7 +218,7 @@ class _ShadcnDemoScreenState extends State<ShadcnDemoScreen> {
           controller: _textController,
         ),
         const SizedBox(height: 16),
-        
+
         // Email input
         ShadInput.email(
           labelText: 'Email Input',
@@ -268,21 +226,18 @@ class _ShadcnDemoScreenState extends State<ShadcnDemoScreen> {
           helperText: 'This is a specialized input for email addresses',
         ),
         const SizedBox(height: 16),
-        
+
         // Password input
         ShadInput.password(
           labelText: 'Password Input',
           controller: _passwordController,
         ),
         const SizedBox(height: 16),
-        
+
         // Number input
-        ShadInput.number(
-          labelText: 'Number Input',
-          hintText: 'Enter a number',
-        ),
+        ShadInput.number(labelText: 'Number Input', hintText: 'Enter a number'),
         const SizedBox(height: 16),
-        
+
         // Multiline input
         ShadInput.multiline(
           labelText: 'Multiline Input',
@@ -290,7 +245,7 @@ class _ShadcnDemoScreenState extends State<ShadcnDemoScreen> {
           maxLines: 4,
         ),
         const SizedBox(height: 16),
-        
+
         // Input with error
         ShadInput.text(
           labelText: 'Input with Error',
@@ -298,7 +253,7 @@ class _ShadcnDemoScreenState extends State<ShadcnDemoScreen> {
           errorText: 'This field is required',
         ),
         const SizedBox(height: 16),
-        
+
         // Disabled input
         ShadInput.text(
           labelText: 'Disabled Input',
@@ -308,7 +263,7 @@ class _ShadcnDemoScreenState extends State<ShadcnDemoScreen> {
       ],
     );
   }
-  
+
   Widget _buildCardsShowcase() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -317,18 +272,22 @@ class _ShadcnDemoScreenState extends State<ShadcnDemoScreen> {
         ShadCard.default_(
           title: 'Default Card',
           subtitle: 'With title and subtitle',
-          child: const Text('This is a default card with a border and a shadow.'),
+          child: const Text(
+            'This is a default card with a border and a shadow.',
+          ),
         ),
         const SizedBox(height: 16),
-        
+
         // Elevated card
         ShadCard.elevated(
           title: 'Elevated Card',
           subtitle: 'No border, just shadow',
-          child: const Text('This card has no border but has a shadow for elevation.'),
+          child: const Text(
+            'This card has no border but has a shadow for elevation.',
+          ),
         ),
         const SizedBox(height: 16),
-        
+
         // Outlined card
         ShadCard.outlined(
           title: 'Outlined Card',
@@ -336,7 +295,7 @@ class _ShadcnDemoScreenState extends State<ShadcnDemoScreen> {
           child: const Text('This card has a border but no shadow.'),
         ),
         const SizedBox(height: 16),
-        
+
         // Flat card
         ShadCard.flat(
           title: 'Flat Card',
@@ -344,12 +303,11 @@ class _ShadcnDemoScreenState extends State<ShadcnDemoScreen> {
           child: const Text('This card has neither border nor shadow.'),
         ),
         const SizedBox(height: 16),
-        
+
         // Card with actions
         ShadCard.default_(
           title: 'Card with Actions',
           subtitle: 'This card has action buttons',
-          child: const Text('You can add action buttons to cards for common operations.'),
           actions: [
             ShadButton.ghost(
               text: 'Cancel',
@@ -362,21 +320,26 @@ class _ShadcnDemoScreenState extends State<ShadcnDemoScreen> {
               onPressed: () {},
             ),
           ],
+          child: const Text(
+            'You can add action buttons to cards for common operations.',
+          ),
         ),
         const SizedBox(height: 16),
-        
+
         // Card with leading/trailing
         ShadCard.default_(
           title: 'Card with Icons',
           subtitle: 'This card has leading and trailing icons',
           leading: const Icon(Icons.star, color: TwColors.warning),
           trailing: const Icon(Icons.chevron_right),
-          child: const Text('Leading and trailing widgets can be added to cards for extra information.'),
+          child: const Text(
+            'Leading and trailing widgets can be added to cards for extra information.',
+          ),
         ),
       ],
     );
   }
-  
+
   Widget _buildBadgesShowcase() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -392,9 +355,9 @@ class _ShadcnDemoScreenState extends State<ShadcnDemoScreen> {
             ShadBadge.destructive(text: 'Destructive'),
           ],
         ),
-        
+
         const SizedBox(height: 20),
-        
+
         // Badge sizes
         Wrap(
           spacing: 8,
@@ -406,18 +369,15 @@ class _ShadcnDemoScreenState extends State<ShadcnDemoScreen> {
             ShadBadge.primary(text: 'Large', size: BadgeSize.lg),
           ],
         ),
-        
+
         const SizedBox(height: 20),
-        
+
         // Badges with icons
         Wrap(
           spacing: 8,
           runSpacing: 12,
           children: [
-            ShadBadge.primary(
-              text: 'New',
-              icon: Icons.star,
-            ),
+            ShadBadge.primary(text: 'New', icon: Icons.star),
             ShadBadge.secondary(
               text: 'Settings',
               icon: Icons.settings,
@@ -425,9 +385,9 @@ class _ShadcnDemoScreenState extends State<ShadcnDemoScreen> {
             ),
           ],
         ),
-        
+
         const SizedBox(height: 20),
-        
+
         // Interactive badges
         Wrap(
           spacing: 8,
@@ -436,18 +396,18 @@ class _ShadcnDemoScreenState extends State<ShadcnDemoScreen> {
             ShadBadge.primary(
               text: 'Clickable',
               onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Badge clicked!')),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text('Badge clicked!')));
               },
             ),
             ShadBadge.secondary(
               text: 'Removable',
               removable: true,
               onRemove: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Badge removed!')),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text('Badge removed!')));
               },
             ),
           ],
@@ -455,7 +415,7 @@ class _ShadcnDemoScreenState extends State<ShadcnDemoScreen> {
       ],
     );
   }
-  
+
   Widget _buildAvatarsShowcase() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -473,9 +433,9 @@ class _ShadcnDemoScreenState extends State<ShadcnDemoScreen> {
             ShadAvatar.xl(initials: 'XL'),
           ],
         ),
-        
+
         const SizedBox(height: 24),
-        
+
         // Avatar types
         Wrap(
           spacing: 16,
@@ -483,26 +443,21 @@ class _ShadcnDemoScreenState extends State<ShadcnDemoScreen> {
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             // Image avatar (using a placeholder image)
-            ShadAvatar(
-              imageUrl: 'https://i.pravatar.cc/150?img=1',
-            ),
-            
+            ShadAvatar(imageUrl: 'https://i.pravatar.cc/150?img=1'),
+
             // Initials avatar
             ShadAvatar(
               initials: 'JD',
               backgroundColor: TwColors.primary,
               textColor: TwColors.textLight,
             ),
-            
+
             // Fallback icon
             ShadAvatar(
-              fallback: const Icon(
-                Icons.person,
-                color: TwColors.textLight,
-              ),
+              fallback: const Icon(Icons.person, color: TwColors.textLight),
               backgroundColor: TwColors.secondary,
             ),
-            
+
             // With border
             ShadAvatar(
               initials: 'AB',
@@ -510,12 +465,9 @@ class _ShadcnDemoScreenState extends State<ShadcnDemoScreen> {
               borderColor: TwColors.primary,
               borderWidth: 2,
             ),
-            
+
             // With status
-            ShadAvatar(
-              initials: 'ON',
-              statusColor: TwColors.success,
-            ),
+            ShadAvatar(initials: 'ON', statusColor: TwColors.success),
           ],
         ),
       ],

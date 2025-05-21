@@ -1,11 +1,10 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:json_annotation/json_annotation.dart';
 
 part 'category.freezed.dart';
 part 'category.g.dart';
 
 @freezed
-class Category with _$Category {
+abstract class Category with _$Category {
   const factory Category({
     required String id,
     required String name,
@@ -18,8 +17,9 @@ class Category with _$Category {
     DateTime? updatedAt,
   }) = _Category;
 
-  factory Category.fromJson(Map<String, dynamic> json) => _$CategoryFromJson(json);
-  
+  factory Category.fromJson(Map<String, dynamic> json) =>
+      _$CategoryFromJson(json);
+
   static Category fromFirebase(Map<String, dynamic> json, String id) {
     return Category(
       id: id,
@@ -28,12 +28,13 @@ class Category with _$Category {
       emoji: json['emoji'],
       color: json['color'],
       displayOrder: json['displayOrder'] ?? json['order'],
-      createdAt: json['createdAt'] != null 
-          ? (json['createdAt'] as dynamic).toDate() 
-          : DateTime.now(),
+      createdAt:
+          json['createdAt'] != null
+              ? (json['createdAt'] as dynamic).toDate()
+              : DateTime.now(),
     );
   }
-  
+
   static Category fromSupabase(Map<String, dynamic> json) {
     return Category(
       id: json['id'] ?? '',
@@ -43,12 +44,14 @@ class Category with _$Category {
       color: json['color'],
       icon: json['icon'],
       displayOrder: json['display_order'],
-      createdAt: json['created_at'] != null 
-          ? DateTime.parse(json['created_at']) 
-          : null,
-      updatedAt: json['updated_at'] != null 
-          ? DateTime.parse(json['updated_at']) 
-          : null,
+      createdAt:
+          json['created_at'] != null
+              ? DateTime.parse(json['created_at'])
+              : null,
+      updatedAt:
+          json['updated_at'] != null
+              ? DateTime.parse(json['updated_at'])
+              : null,
     );
   }
 }

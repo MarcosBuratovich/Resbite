@@ -1,4 +1,3 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'config/constants.dart';
 import 'config/env.dart';
+import 'config/feature_flags.dart';
 import 'config/routes.dart';
 import 'config/theme.dart';
 import 'services/providers.dart';
@@ -22,17 +22,6 @@ void main() async {
     // Load environment variables
     await Env.initialize();
     
-    // Initialize Firebase
-    await Firebase.initializeApp(
-      options: FirebaseOptions(
-        apiKey: Env.firebaseApiKey,
-        appId: Env.firebaseAppId,
-        messagingSenderId: Env.firebaseMessagingSenderId,
-        projectId: Env.firebaseProjectId,
-        storageBucket: Env.firebaseStorageBucket,
-      ),
-    );
-    
     // Initialize Supabase
     await Supabase.initialize(
       url: Env.supabaseUrl,
@@ -44,6 +33,9 @@ void main() async {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+    
+    // Initialize feature flags
+    await FeatureFlags.initialize();
     
     // Run the app
     runApp(const ProviderScope(child: ResbiteMaterialApp()));

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:lottie/lottie.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../config/constants.dart';
 import '../../config/theme.dart';
@@ -23,25 +23,25 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
     {
       'title': 'Welcome to Resbite',
       'description': 'Find and join activities with other families in your area.',
-      'animation': 'assets/animations/welcome.json',
+      'image': 'assets/Resbites Illustrations/SVGs/Artboard 1.svg',
       'color': const Color(0xFF89CAC7), // Teal
     },
     {
       'title': 'Discover Activities',
       'description': 'Browse through many family activities and pick your favorites.',
-      'animation': 'assets/animations/discover.json',
+      'image': 'assets/Resbites Illustrations/SVGs/Artboard 5.svg',
       'color': const Color(0xFF462748), // Purple
     },
     {
       'title': 'Create Resbites',
       'description': 'Organize your own activities and invite others to join.',
-      'animation': 'assets/animations/create.json',
+      'image': 'assets/Resbites Illustrations/SVGs/Artboard 3.svg',
       'color': const Color(0xFFEFB0B4), // Pink
     },
     {
       'title': 'Connect with Others',
       'description': 'Build your network and make lasting memories together.',
-      'animation': 'assets/animations/connect.json',
+      'image': 'assets/Resbites Illustrations/SVGs/Artboard 9.svg',
       'color': const Color(0xFF89CAC7), // Teal
     },
   ];
@@ -225,25 +225,23 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          // Animation placeholder
+                          // Illustration
                           Container(
-                            width: 280,
-                            height: 280,
+                            width: MediaQuery.of(context).size.width * 0.85,
+                            height: MediaQuery.of(context).size.height * 0.4,
                             decoration: BoxDecoration(
-                              color: _onboardingData[index]['color'].withOpacity(0.1),
+                              color: Colors.transparent,
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Center(
-                              child: Lottie.asset(
-                                _onboardingData[index]['animation'],
-                                // If animation files aren't available, show a backup icon
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Icon(
-                                    Icons.animation,
-                                    size: 100,
-                                    color: _onboardingData[index]['color'].withOpacity(0.5),
-                                  );
-                                },
+                              child: SvgPicture.asset(
+                                _onboardingData[index]['image'],
+                                // If SVG files aren't available, show a backup icon
+                                placeholderBuilder: (context) => CircularProgressIndicator(
+                                  color: _onboardingData[index]['color'],
+                                ),
+                                width: MediaQuery.of(context).size.width * 0.8,
+                                height: MediaQuery.of(context).size.height * 0.35,
                               ),
                             ),
                           ),
@@ -252,21 +250,27 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                           // Title
                           Text(
                             _onboardingData[index]['title'],
-                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                               fontWeight: FontWeight.bold,
+                              fontFamily: 'Montserrat',
                               color: _onboardingData[index]['color'],
                             ),
                             textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 20),
                           
                           // Description
-                          Text(
-                            _onboardingData[index]['description'],
-                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              color: AppTheme.darkTextColor.withOpacity(0.8),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                            child: Text(
+                              _onboardingData[index]['description'],
+                              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                fontFamily: 'Quicksand',
+                                fontSize: 18,
+                                color: AppTheme.darkTextColor.withOpacity(0.8),
+                              ),
+                              textAlign: TextAlign.center,
                             ),
-                            textAlign: TextAlign.center,
                           ),
                         ],
                       ),
@@ -284,7 +288,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                 icon: isLastPage ? Icons.rocket_launch : Icons.arrow_forward,
                 type: ResbiteBtnType.primary,
                 backgroundColor: pageColor,
-                textColor: pageColor == AppTheme.secondaryColor ? AppTheme.lightTextColor : null,
+                textColor: Colors.white,
                 size: ResbiteBtnSize.large,
                 fullWidth: true,
                 onPressed: _nextPage,

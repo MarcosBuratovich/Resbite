@@ -1,19 +1,10 @@
 import 'package:flutter/material.dart';
 
 /// Badge variant
-enum BadgeVariant {
-  default_,
-  secondary,
-  outline,
-  destructive,
-}
+enum BadgeVariant { default_, secondary, outline, destructive }
 
 /// Badge sizes
-enum BadgeSize {
-  sm,
-  md,
-  lg,
-}
+enum BadgeSize { sm, md, lg }
 
 /// A shadcn-inspired badge component.
 class ShadBadge extends StatelessWidget {
@@ -41,13 +32,13 @@ class ShadBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     // Size configuration
     double height;
     double fontSize;
     double iconSize;
     EdgeInsets padding;
-    
+
     switch (size) {
       case BadgeSize.sm:
         height = 24;
@@ -70,12 +61,12 @@ class ShadBadge extends StatelessWidget {
         padding = const EdgeInsets.symmetric(horizontal: 10, vertical: 4);
         break;
     }
-    
+
     // Color configuration based on variant
     Color backgroundColor;
     Color textColor;
     Color borderColor;
-    
+
     switch (variant) {
       case BadgeVariant.secondary:
         backgroundColor = colorScheme.secondaryContainer;
@@ -84,7 +75,7 @@ class ShadBadge extends StatelessWidget {
         break;
       case BadgeVariant.outline:
         backgroundColor = Colors.transparent;
-        textColor = colorScheme.onBackground;
+        textColor = colorScheme.onSurface;
         borderColor = colorScheme.outline;
         break;
       case BadgeVariant.destructive:
@@ -100,21 +91,17 @@ class ShadBadge extends StatelessWidget {
         borderColor = Colors.transparent;
         break;
     }
-    
+
     // Widget with icon, text, and remove button if needed
     Widget badgeContent = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         // Leading icon
         if (icon != null && !iconTrailing) ...[
-          Icon(
-            icon,
-            size: iconSize,
-            color: textColor,
-          ),
+          Icon(icon, size: iconSize, color: textColor),
           SizedBox(width: size == BadgeSize.sm ? 4 : 6),
         ],
-        
+
         // Text
         Text(
           text,
@@ -124,32 +111,24 @@ class ShadBadge extends StatelessWidget {
             fontWeight: FontWeight.w500,
           ),
         ),
-        
+
         // Trailing icon
         if (icon != null && iconTrailing) ...[
           SizedBox(width: size == BadgeSize.sm ? 4 : 6),
-          Icon(
-            icon,
-            size: iconSize,
-            color: textColor,
-          ),
+          Icon(icon, size: iconSize, color: textColor),
         ],
-        
+
         // Remove button
         if (removable) ...[
           SizedBox(width: size == BadgeSize.sm ? 4 : 6),
           GestureDetector(
             onTap: onRemove,
-            child: Icon(
-              Icons.close,
-              size: iconSize,
-              color: textColor,
-            ),
+            child: Icon(Icons.close, size: iconSize, color: textColor),
           ),
         ],
       ],
     );
-    
+
     // Wrap in material for tap feedback if onTap is provided
     Widget badge = Container(
       height: height,
@@ -157,22 +136,24 @@ class ShadBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(height / 2),
-        border: variant == BadgeVariant.outline
-            ? Border.all(color: borderColor, width: 1)
-            : null,
+        border:
+            variant == BadgeVariant.outline
+                ? Border.all(color: borderColor, width: 1)
+                : null,
       ),
-      child: onTap != null
-          ? Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: onTap,
-                borderRadius: BorderRadius.circular(height / 2),
-                child: badgeContent,
-              ),
-            )
-          : badgeContent,
+      child:
+          onTap != null
+              ? Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: onTap,
+                  borderRadius: BorderRadius.circular(height / 2),
+                  child: badgeContent,
+                ),
+              )
+              : badgeContent,
     );
-    
+
     return badge;
   }
 

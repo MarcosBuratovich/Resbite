@@ -1,8 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-
-// Re-export the providers from app_state.dart for easier access
-export '../services/app_state.dart' show 
+// Re-export the providers from providers.dart for easier access
+export '../services/providers.dart' show 
   activitiesProvider,
   activitiesByCategoryProvider,
   activityProvider,
