@@ -103,3 +103,4 @@ IMPLEMENTATION_PLAN.md
 .gitignore
 CODING_PATTERNS.md
 .gitignore
+package-lock.json
