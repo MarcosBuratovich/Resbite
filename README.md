@@ -11,8 +11,6 @@ The app is built with a clean architecture approach, using:
 - **Riverpod** for state management
 - **Freezed** for immutable data models
   
-```
-
 ## Getting Started
 
 ### Prerequisites
@@ -29,7 +27,13 @@ The app is built with a clean architecture approach, using:
    cd resbite_app
    ```
 
-2. Create a `.env` file in the root directory with the following:
+2. Copy the appropriate `.env` template and fill in secrets:
+    ```bash
+   # For development:
+   cp .env.example .env
+   # For testing with shared credentials:
+   cp .env.testing .env
+    ```
    ```
    # Environment
    ENVIRONMENT=development

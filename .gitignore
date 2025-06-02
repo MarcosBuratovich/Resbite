@@ -50,9 +50,11 @@ app.*.map.json
 **/lib/firebase_options.dart
 
 # Supabase configuration files
-.env
-.env.*
-*.env
+# Local environment files (secrets)
+.env*
+# Keep templates in repo
+!.env.example
+!.env.testing
 **/lib/supabase_options.dart
 
 # Web related files
@@ -99,6 +101,7 @@ key.properties
 /node_modules/
 assets/MVP Flowchart - V2.8.pdf
 policy.sql
+CLAUDE.md
 IMPLEMENTATION_PLAN.md
 CODING_PATTERNS.md
 package-lock.json
