@@ -5,7 +5,8 @@ import 'package:resbite_app/models/user.dart';
 import 'package:resbite_app/models/validated_contact.dart';
 import 'package:resbite_app/services/providers.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' hide User;
-// Firebase Auth import removed
+import 'package:resbite_app/services/notification_service.dart';
+import 'package:resbite_app/models/notification.dart';
 
 /// Service interface for managing friend circles
 abstract class CircleService {
@@ -36,23 +37,33 @@ abstract class CircleService {
 
   /// Leaves a circle
   Future<void> leaveCircle(String circleId);
+
+  /// Deletes a circle and its associated members & invitations
+  Future<void> deleteCircle(String circleId);
 }
 
 /// Implementation of CircleService
 class CircleServiceImpl implements CircleService {
   final SupabaseClient _supabase;
+  final Ref _ref;
 
-  CircleServiceImpl(this._supabase);
+  CircleServiceImpl(this._supabase, this._ref);
 
   /// Get the current user ID or throw error if not authenticated
   String get _requiredUserId {
     final supabaseUser = _supabase.auth.currentUser;
     if (kDebugMode) {
       print('----------------------------------------------------');
-      print('[CircleService - _requiredUserId] KDEBUGMODE IS TRUE. CHECKING AUTH.');
-      print('[CircleService - _requiredUserId] supabaseUser is ${supabaseUser == null ? 'NULL' : 'NOT NULL'}');
+      print(
+        '[CircleService - _requiredUserId] KDEBUGMODE IS TRUE. CHECKING AUTH.',
+      );
+      print(
+        '[CircleService - _requiredUserId] supabaseUser is ${supabaseUser == null ? 'NULL' : 'NOT NULL'}',
+      );
       if (supabaseUser != null) {
-        print('[CircleService - _requiredUserId] Supabase User ID: ${supabaseUser.id}');
+        print(
+          '[CircleService - _requiredUserId] Supabase User ID: ${supabaseUser.id}',
+        );
       }
       print('----------------------------------------------------');
     }
@@ -60,7 +71,9 @@ class CircleServiceImpl implements CircleService {
     if (userId == null) {
       if (kDebugMode) {
         print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
-        print('[CircleService - _requiredUserId] ERROR: User not authenticated. Firebase currentUser is null or has no UID.');
+        print(
+          '[CircleService - _requiredUserId] ERROR: User not authenticated. Firebase currentUser is null or has no UID.',
+        );
         print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
       }
       throw Exception('User not authenticated');
@@ -76,11 +89,16 @@ class CircleServiceImpl implements CircleService {
   }) async {
     if (kDebugMode) {
       print('****************************************************');
-      print('[CircleService - createCircle] ATTEMPTING TO CREATE CIRCLE. Name: $name');
+      print(
+        '[CircleService - createCircle] ATTEMPTING TO CREATE CIRCLE. Name: $name',
+      );
       print('****************************************************');
     }
     try {
       final userId = _requiredUserId;
+
+      // Ensure a corresponding row exists in the `users` table for FK constraint
+      await _ensureUserRowExists(userId);
 
       // Create the circle
       final result =
@@ -110,6 +128,51 @@ class CircleServiceImpl implements CircleService {
     } catch (e) {
       debugPrint('Error creating circle: $e');
       rethrow;
+    }
+  }
+
+  /// Ensure the authenticated user already has a row in `users`.
+  Future<void> _ensureUserRowExists(String userId) async {
+    // Quick check – if row exists, nothing to do
+    final existing =
+        await _supabase
+            .from('users')
+            .select('id')
+            .eq('id', userId)
+            .maybeSingle();
+
+    if (existing != null) return;
+
+    final authUser = _supabase.auth.currentUser;
+    if (authUser == null) {
+      throw Exception('User not authenticated when ensuring user row');
+    }
+
+    // Minimal profile data – reuse the same RPC used elsewhere
+    final params = {
+      'p_id': authUser.id,
+      'p_email': authUser.email ?? '',
+      'p_display_name':
+          authUser.userMetadata?['name'] as String? ??
+          authUser.email?.split('@').first ??
+          '',
+      'p_phone_number': authUser.phone ?? '',
+      'p_short_description': '',
+      'p_role': 'user',
+    };
+
+    try {
+      await _supabase.rpc('create_user', params: params);
+    } catch (_) {
+      // Fallback: direct insert with minimal columns
+      await _supabase.from('users').insert({
+        'id': authUser.id,
+        'email': authUser.email,
+        'display_name': params['p_display_name'],
+        'phone_number': params['p_phone_number'],
+        'short_description': '',
+        'role': 'user',
+      });
     }
   }
 
@@ -174,40 +237,30 @@ class CircleServiceImpl implements CircleService {
     try {
       final userId = _requiredUserId;
 
-      // Check if user exists by email or phone
-      final userByEmail =
-          contact.contactInfo.email != null
-              ? await _supabase
-                  .from('users')
-                  .select()
-                  .eq('email', contact.contactInfo.email as Object)
-                  .maybeSingle()
-              : null;
+      // Create a pending invitation for this user
+      final inserted = await _supabase
+          .from('circle_invitations')
+          .insert({
+            'circle_id': circleId,
+            'inviter_user_id': userId,
+            'invitee_user_id': contact.id,
+            'status': 'pending',
+            'created_at': DateTime.now().toIso8601String(),
+          })
+          .select()
+          .maybeSingle();
 
-      final userByPhone =
-          contact.contactInfo.phoneNumber != null
-              ? await _supabase
-                  .from('users')
-                  .select()
-                  .eq('phone', contact.contactInfo.phoneNumber as Object)
-                  .maybeSingle()
-              : null;
-
-      final foundUser = userByEmail ?? userByPhone;
-
-      if (foundUser != null) {
-        // Add user directly to circle
-        await _addUserToCircle(circleId, foundUser['id']);
-      } else {
-        // Create invitation record
-        await _supabase.from('circle_invitations').insert({
-          'circle_id': circleId,
-          'inviter_id': userId,
-          'invited_email': contact.contactInfo.email,
-          'invited_phone': contact.contactInfo.phoneNumber,
-          'contact_info': contact.contactInfo.toJson(),
-          'created_at': DateTime.now().toIso8601String(),
-        });
+      // Notify invitee
+      if (inserted != null) {
+        final invitationId = inserted['id'] as String;
+        await _ref.read(notificationServiceProvider).sendNotification(
+          userId: contact.id,
+          type: NotificationType.circleInvite,
+          payload: {
+            'invitation_id': invitationId,
+            'circle_id': circleId,
+          },
+        );
       }
     } catch (e) {
       debugPrint('Error inviting to circle: $e');
@@ -231,27 +284,32 @@ class CircleServiceImpl implements CircleService {
       final currentUserId = _requiredUserId;
 
       // Check if the current user is an admin or the creator of the circle
-      final circleData = await _supabase
-          .from('circles')
-          .select('created_by')
-          .eq('id', circleId)
-          .single();
+      final circleData =
+          await _supabase
+              .from('circles')
+              .select('created_by')
+              .eq('id', circleId)
+              .single();
       final creatorId = circleData['created_by'] as String;
 
       bool isAdmin = false;
-      if (creatorId != currentUserId) { // Creator is always an admin
-        final adminCheck = await _supabase
-            .from('circle_members')
-            .select('role')
-            .eq('circle_id', circleId)
-            .eq('user_id', currentUserId)
-            .single();
+      if (creatorId != currentUserId) {
+        // Creator is always an admin
+        final adminCheck =
+            await _supabase
+                .from('circle_members')
+                .select('role')
+                .eq('circle_id', circleId)
+                .eq('user_id', currentUserId)
+                .single();
         isAdmin = (adminCheck['role'] == 'admin');
       }
 
       // Only creator or admin can remove members, unless user is removing themselves
-      if (creatorId == currentUserId || isAdmin || currentUserId == userIdToRemove) {
-         // Prevent creator from being removed by other admins (creator can leave though)
+      if (creatorId == currentUserId ||
+          isAdmin ||
+          currentUserId == userIdToRemove) {
+        // Prevent creator from being removed by other admins (creator can leave though)
         if (userIdToRemove == creatorId && currentUserId != creatorId) {
           throw Exception('Cannot remove the circle creator.');
         }
@@ -276,18 +334,21 @@ class CircleServiceImpl implements CircleService {
       // Check if the user is the creator, special handling might be needed
       // (e.g., assign new admin or delete circle if last member)
       // For now, just allow leaving.
-      final circleData = await _supabase
-          .from('circles')
-          .select('created_by')
-          .eq('id', circleId)
-          .single();
+      final circleData =
+          await _supabase
+              .from('circles')
+              .select('created_by')
+              .eq('id', circleId)
+              .single();
       final creatorId = circleData['created_by'] as String;
 
       if (userId == creatorId) {
         // Optional: Add logic here if the creator leaves.
         // For example, check if there are other admins. If not, promote one or delete the circle.
         // This example just allows leaving.
-        debugPrint("Circle creator is leaving. Consider transfer of ownership or deletion logic.");
+        debugPrint(
+          "Circle creator is leaving. Consider transfer of ownership or deletion logic.",
+        );
       }
 
       await _supabase
@@ -301,35 +362,41 @@ class CircleServiceImpl implements CircleService {
     }
   }
 
-  // Helper method to add user directly to circle
-  Future<void> _addUserToCircle(String circleId, String userIdToInvite) async {
-    // Check if user is already a member (to avoid duplicates or errors)
-    final existingMember = await _supabase
-        .from('circle_members')
-        .select()
-        .eq('circle_id', circleId)
-        .eq('user_id', userIdToInvite)
-        .maybeSingle();
-
-    if (existingMember == null) {
-      await _supabase.from('circle_members').insert({
-        'circle_id': circleId,
-        'user_id': userIdToInvite,
-        // 'is_admin': false, // Default to non-admin when invited directly like this
-        'role': 'member', // Use the 'role' column as defined in SQL
-        'joined_at': DateTime.now().toIso8601String(),
-      });
-    } else {
-      // User is already a member, you might want to log this or handle it
-      debugPrint('User $userIdToInvite is already a member of circle $circleId.');
+  @override
+  Future<void> deleteCircle(String circleId) async {
+    try {
+      final userId = _requiredUserId;
+      // Ensure only creator can delete
+      final circleData =
+          await _supabase
+              .from('circles')
+              .select('created_by')
+              .eq('id', circleId)
+              .single();
+      if (circleData['created_by'] != userId) {
+        throw Exception('Only the creator can delete this circle.');
+      }
+      // Cascade delete members and invitations
+      await _supabase.from('circle_members').delete().eq('circle_id', circleId);
+      await _supabase
+          .from('circle_invitations')
+          .delete()
+          .eq('circle_id', circleId);
+      // Delete the circle itself
+      await _supabase.from('circles').delete().eq('id', circleId);
+    } catch (e) {
+      debugPrint('Error deleting circle: $e');
+      rethrow;
     }
   }
+
+  // Helper method to add user directly to circle
 }
 
 /// Circle service provider
 final circleServiceProvider = Provider<CircleService>((ref) {
   final supabase = ref.watch(supabaseClientProvider);
-  return CircleServiceImpl(supabase);
+  return CircleServiceImpl(supabase, ref);
 });
 
 /// User circles provider
@@ -339,15 +406,24 @@ final userCirclesProvider = FutureProvider<List<Circle>>((ref) async {
 });
 
 /// Circle members provider - requires circleId parameter
-final circleMembersProvider = FutureProvider.family<List<User>, String>((ref, circleId) async {
+final circleMembersProvider = FutureProvider.family<List<User>, String>((
+  ref,
+  circleId,
+) async {
   final circleService = ref.watch(circleServiceProvider);
   return circleService.getCircleMembers(circleId);
 });
 
 /// Provider to get details of a specific circle
-final circleDetailsProvider = FutureProvider.family<Circle, String>((ref, circleId) async {
+final circleDetailsProvider = FutureProvider.family<Circle, String>((
+  ref,
+  circleId,
+) async {
   // This is a simplified version. You might need a dedicated service method if your
   // Circle model needs more data than what getUserCircles provides for a single circle.
   final circles = await ref.watch(userCirclesProvider.future);
-  return circles.firstWhere((c) => c.id == circleId, orElse: () => throw Exception('Circle not found'));
+  return circles.firstWhere(
+    (c) => c.id == circleId,
+    orElse: () => throw Exception('Circle not found'),
+  );
 });

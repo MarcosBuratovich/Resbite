@@ -100,7 +100,9 @@ key.properties
 assets/MVP Flowchart - V2.8.pdf
 policy.sql
 IMPLEMENTATION_PLAN.md
-.gitignore
 CODING_PATTERNS.md
-.gitignore
 package-lock.json
+
+# Remove outdated test folders
+#/simple_test/
+#/test/

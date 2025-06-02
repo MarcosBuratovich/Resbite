@@ -11,6 +11,7 @@ export 'friend_service_impl.dart'
         friendServiceProvider,
         friendServiceImplProvider,
         directFriendsListProvider,
+        pendingFriendRequestsProvider,
         networkConnectionsProvider;
 export 'circle_service.dart' show circleServiceProvider, userCirclesProvider;
 export 'invitation_service.dart'

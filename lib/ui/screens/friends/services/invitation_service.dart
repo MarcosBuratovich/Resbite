@@ -106,7 +106,7 @@ class InvitationServiceImpl implements InvitationService {
       final invitations = await _supabase
           .from('circle_invitations')
           .select('*, circles(*), users!inviter_id(*)')
-          .eq('invited_user_id', userId)
+          .eq('invitee_user_id', userId)
           .eq('status', 'pending');
 
       // Transform to Invitation objects
@@ -143,14 +143,14 @@ class InvitationServiceImpl implements InvitationService {
               .from('circle_invitations')
               .select('*')
               .eq('id', invitationId)
-              .eq('invited_user_id', userId)
+              .eq('invitee_user_id', userId)
               .single();
 
       // Add user to the circle
       await _supabase.from('circle_members').insert({
         'circle_id': invitation['circle_id'],
         'user_id': userId,
-        'is_admin': false,
+        'role': 'member',
         'joined_at': DateTime.now().toIso8601String(),
       });
 
@@ -175,7 +175,7 @@ class InvitationServiceImpl implements InvitationService {
           .from('circle_invitations')
           .update({'status': 'declined'})
           .eq('id', invitationId)
-          .eq('invited_user_id', userId);
+          .eq('invitee_user_id', userId);
     } catch (e) {
       debugPrint('Error declining invitation: $e');
       rethrow;

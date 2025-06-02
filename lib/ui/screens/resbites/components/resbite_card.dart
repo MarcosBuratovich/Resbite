@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:share_plus/share_plus.dart';
 
+import '../../../../config/routes.dart';
 import '../../../../models/resbite.dart';
 import 'resbite_action_button.dart';
 import 'resbite_detail_row.dart';
@@ -31,7 +33,7 @@ class ResbiteCard extends ConsumerWidget {
       child: InkWell(
         onTap: () {
           Navigator.of(context).pushNamed(
-            '/resbites/details',
+            AppRoutes.resbiteDetails,
             arguments: {'id': resbite.id},
           );
         },
@@ -114,7 +116,8 @@ class ResbiteCard extends ConsumerWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                 const SizedBox(height: 8),
-                ResbiteStatusBadge(status: resbite.status),
+                // Use computedStatus to reflect ongoing/completed based on current time
+                ResbiteStatusBadge(status: resbite.computedStatus),
               ],
             ),
           ),
@@ -183,7 +186,9 @@ class ResbiteCard extends ConsumerWidget {
             children: [
               FilledButton.tonal(
                 onPressed: () {
-                  // TODO: Share resbite
+                  Share.share(
+                    'Join me at ${resbite.title}! View details: ${AppRoutes.resbiteDetails}?id=${resbite.id}'
+                  );
                 },
                 style: FilledButton.styleFrom(
                   visualDensity: VisualDensity.compact,
@@ -205,8 +210,6 @@ class ResbiteCard extends ConsumerWidget {
       ),
     );
   }
-
-
 
   /// Format the date in a human-readable way (Today, Tomorrow, or date)
   String _formatDate(BuildContext context, DateTime date) {

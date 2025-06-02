@@ -2,12 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../config/theme.dart';
 
-enum ToastType {
-  success,
-  error,
-  warning,
-  info,
-}
+enum ToastType { success, error, warning, info }
 
 class Toast {
   static void show({
@@ -24,7 +19,7 @@ class Toast {
     // Determine colors and icons based on type
     final Color backgroundColor;
     final IconData icon;
-    
+
     switch (type) {
       case ToastType.success:
         backgroundColor = AppTheme.successColor;
@@ -39,24 +34,19 @@ class Toast {
         icon = Icons.warning;
         break;
       case ToastType.info:
-      default:
         backgroundColor = AppTheme.infoColor;
         icon = Icons.info;
         break;
     }
-    
+
     // Create the snackbar widget
     final SnackBar snackBar = SnackBar(
       content: Row(
         children: [
           // Leading icon or widget
-          leading ?? Icon(
-            icon,
-            color: Colors.white,
-            size: 20,
-          ),
+          leading ?? Icon(icon, color: Colors.white, size: 20),
           const SizedBox(width: 12),
-          
+
           // Message text
           Expanded(
             child: Text(
@@ -78,25 +68,26 @@ class Toast {
         right: 16,
         bottom: showAtTop ? MediaQuery.of(context).size.height - 100 : 16,
       ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      action: onAction != null || !dismissible
-          ? SnackBarAction(
-              label: actionLabel ?? 'Dismiss',
-              textColor: Colors.white,
-              onPressed: onAction ?? () {},
-            )
-          : null,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      action:
+          onAction != null || !dismissible
+              ? SnackBarAction(
+                label: actionLabel ?? 'Dismiss',
+                textColor: Colors.white,
+                onPressed: onAction ?? () {},
+              )
+              : null,
     );
-    
+
     // Dismiss any existing snackbars and show the new one
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(snackBar);
   }
-  
-  static void showSuccess(BuildContext context, String message, {
+
+  static void showSuccess(
+    BuildContext context,
+    String message, {
     Duration duration = const Duration(seconds: 3),
     VoidCallback? onAction,
     String? actionLabel,
@@ -110,8 +101,10 @@ class Toast {
       actionLabel: actionLabel,
     );
   }
-  
-  static void showError(BuildContext context, String message, {
+
+  static void showError(
+    BuildContext context,
+    String message, {
     Duration duration = const Duration(seconds: 4),
     VoidCallback? onAction,
     String? actionLabel,
@@ -125,8 +118,10 @@ class Toast {
       actionLabel: actionLabel,
     );
   }
-  
-  static void showWarning(BuildContext context, String message, {
+
+  static void showWarning(
+    BuildContext context,
+    String message, {
     Duration duration = const Duration(seconds: 4),
     VoidCallback? onAction,
     String? actionLabel,
@@ -140,8 +135,10 @@ class Toast {
       actionLabel: actionLabel,
     );
   }
-  
-  static void showInfo(BuildContext context, String message, {
+
+  static void showInfo(
+    BuildContext context,
+    String message, {
     Duration duration = const Duration(seconds: 3),
     VoidCallback? onAction,
     String? actionLabel,

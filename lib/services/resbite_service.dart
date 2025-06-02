@@ -2,11 +2,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/activity.dart';
+import '../models/notification.dart';
 import '../models/place.dart';
 import '../models/resbite.dart';
+import '../models/resbite_filter.dart';
 import '../models/user.dart' as app_user;
 import '../utils/logger.dart';
-import './providers.dart'; // For activityServiceProvider, userProfileServiceProvider, and databaseServiceProvider (temporary for getPlace)
+import 'notification_service.dart';
+import 'providers.dart';
 
 class ResbiteService {
   final SupabaseClient _supabase;
@@ -51,10 +54,10 @@ class ResbiteService {
       final query = _supabase.from('resbites').select();
 
       if (participantResbiteIds.isNotEmpty) {
-        final quotedIds = participantResbiteIds.map((id) => "'$id'").join(',');
-        query.or("id.in.($quotedIds),owner_id.eq.'$currentUserId',is_private.eq.false");
+        final joinedIds = participantResbiteIds.join(',');
+        query.or('id.in.($joinedIds),owner_id.eq.$currentUserId');
       } else {
-        query.or("owner_id.eq.'$currentUserId',is_private.eq.false");
+        query.eq('owner_id', currentUserId);
       }
 
       if (upcoming) {
@@ -131,8 +134,9 @@ class ResbiteService {
           try {
             final participantsResponse = await _supabase
                 .from('resbite_participants')
-                .select('user_id, role')
-                .eq('resbite_id', json['id']);
+                .select('user_id')
+                .eq('resbite_id', json['id'])
+                .eq('status', 'confirmed');
 
             for (final participantData in participantsResponse) {
               if (participantData['user_id'] == null) {
@@ -257,8 +261,9 @@ class ResbiteService {
       try {
         final participantsResponse = await _supabase
             .from('resbite_participants')
-            .select('user_id, role')
-            .eq('resbite_id', resbiteId);
+            .select('user_id')
+            .eq('resbite_id', resbiteId)
+            .eq('status', 'confirmed');
 
         for (final participantData in participantsResponse) {
           if (participantData['user_id'] == null) {
@@ -430,6 +435,21 @@ class ResbiteService {
     }
   }
 
+  /// Cancel a resbite by setting its status to cancelled
+  Future<bool> cancelResbite(String resbiteId) async {
+    try {
+      await _supabase
+          .from('resbites')
+          .update({'status': ResbiteStatus.cancelled.name})
+          .eq('id', resbiteId);
+      AppLogger.info('Resbite cancelled: $resbiteId', null, null);
+      return true;
+    } catch (e, stack) {
+      AppLogger.error('Error cancelling resbite: $resbiteId', e, stack);
+      return false;
+    }
+  }
+
   // Private helper to update attendance count
   Future<void> _updateResbiteAttendance(String resbiteId) async {
     try {
@@ -557,6 +577,68 @@ class ResbiteService {
         stack,
       );
       rethrow;
+    }
+  }
+
+  /// Invite multiple users to a resbite
+  Future<void> inviteUsers(String resbiteId, List<String> userIds) async {
+    if (userIds.isEmpty) return;
+    final rows = [
+      for (final uid in userIds)
+        {
+          'resbite_id': resbiteId,
+          'user_id': uid,
+          'status': 'invited',
+          'joined_at': DateTime.now().toIso8601String(),
+        },
+    ];
+    try {
+      await _supabase.from('resbite_participants').insert(rows, defaultToNull: true);
+      // Send notifications to invited users
+      final notificationService = _ref.read(notificationServiceProvider);
+      for (final uid in userIds) {
+        await notificationService.sendNotification(
+          userId: uid,
+          type: NotificationType.resbiteInvite,
+          payload: {'resbite_id': resbiteId},
+        );
+      }
+    } catch (e, st) {
+      AppLogger.error('Error inviting users', e, st);
+    }
+  }
+
+  // Decline a resbite invitation
+  Future<void> declineResbiteInvite(String resbiteId, String userId) async {
+    try {
+      await _supabase
+          .from('resbite_participants')
+          .update({'status': 'declined'})
+          .eq('resbite_id', resbiteId)
+          .eq('user_id', userId);
+      AppLogger.info(
+        'Resbite invitation declined: $resbiteId, user: $userId',
+        null,
+        null,
+      );
+      await _updateResbiteAttendance(resbiteId);
+    } catch (e, st) {
+      AppLogger.error(
+        'Error declining resbite invitation: $resbiteId, user: $userId',
+        e,
+        st,
+      );
+      rethrow;
+    }
+  }
+
+  Future<void> refreshResbites() async {
+    try {
+      // Invalidate generic upcoming and past resbites listings
+      _ref.invalidate(resbitesProvider(const ResbiteFilter(upcoming: true)));
+      _ref.invalidate(resbitesProvider(const ResbiteFilter(upcoming: false)));
+    } catch (e) {
+      print('Error refreshing resbites: $e');
     }
   }
 }

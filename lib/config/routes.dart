@@ -14,6 +14,9 @@ import '../ui/screens/activities/activity_details_screen.dart';
 import '../ui/screens/activities/start_resbite_screen.dart';
 import '../ui/screens/resbites/resbites_screen.dart';
 import '../ui/screens/resbites/resbite_details_screen.dart';
+import '../ui/screens/resbites/edit_resbite_details_screen.dart';
+import '../ui/screens/resbites/manage_participants_screen.dart';
+import '../ui/screens/notifications/notification_center_screen.dart';
 import '../ui/screens/shadcn_demo_screen.dart';
 
 class AppRoutes {
@@ -30,6 +33,9 @@ class AppRoutes {
   static const String startResbite = '/start-resbite';
   static const String resbites = '/resbites';
   static const String resbiteDetails = '/resbites/details';
+  static const String editResbite = '/resbites/edit';
+  static const String manageParticipants = '/resbites/manage';
+  static const String notifications = '/notifications';
   static const String shadcnDemo = '/shadcn-demo';
   
   // Route generation
@@ -76,6 +82,19 @@ class AppRoutes {
         return MaterialPageRoute(
           builder: (_) => ResbiteDetailsScreen(resbiteId: resbiteId),
         );
+      case editResbite:
+        // Navigate to edit resbite screen
+        final String resbiteId = args is Map ? args['id'] : '';
+        return MaterialPageRoute(
+          builder: (_) => EditResbiteDetailsScreen(resbiteId: resbiteId),
+        );
+      case manageParticipants:
+        final String resbiteIdManage = args is Map ? args['id'] : '';
+        return MaterialPageRoute(
+          builder: (_) => ManageParticipantsScreen(resbiteId: resbiteIdManage),
+        );
+      case notifications:
+        return MaterialPageRoute(builder: (_) => const NotificationCenterScreen());
       case shadcnDemo:
         return MaterialPageRoute(builder: (_) => const ShadcnDemoScreen());
       default:

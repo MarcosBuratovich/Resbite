@@ -337,32 +337,20 @@ class UserDBService {
         }
       }
 
-      // Find users by phone number
+      // Find users by phone number via full fetch and local normalization
       if (phones.isNotEmpty) {
         try {
-          // We need to run multiple queries if there are many phone numbers
-          const int batchSize = 50;
-          for (int i = 0; i < phones.length; i += batchSize) {
-            final int end =
-                (i + batchSize < phones.length) ? i + batchSize : phones.length;
-            final List<String> batch = phones.sublist(i, end);
-
-            // Convert to list of JSON
-            final phonesJson = batch.map((e) => e).toList();
-
-            // Use filter instead of in_ operator
-            final response = await _supabase
-                .from('users')
-                .select()
-                .filter('phone_number', 'in', phonesJson);
-
-            for (final user in response) {
+          final response = await _supabase.from('users').select();
+          for (final userJson in response) {
+            final dbPhoneRaw = userJson['phone_number'] as String?;
+            if (dbPhoneRaw == null || dbPhoneRaw.isEmpty) continue;
+            final dbPhoneNorm = dbPhoneRaw.replaceAll(RegExp(r'\D'), '');
+            if (phones.contains(dbPhoneNorm)) {
               try {
-                final newUser = app_user.User.fromSupabase(user);
+                final newUser = app_user.User.fromSupabase(userJson);
 
                 // Check if user is already in matchedUsers list
-                final isDuplicate = matchedUsers.any((u) => u.id == newUser.id);
-                if (!isDuplicate) {
+                if (!matchedUsers.any((u) => u.id == newUser.id)) {
                   matchedUsers.add(newUser);
                 }
               } catch (parseError, parseStack) {
@@ -371,7 +359,6 @@ class UserDBService {
                   parseError,
                   parseStack,
                 );
-                // Continue with next user
               }
             }
           }
@@ -381,7 +368,6 @@ class UserDBService {
             phoneError,
             phoneStack,
           );
-          // Continue with return
         }
       }
 

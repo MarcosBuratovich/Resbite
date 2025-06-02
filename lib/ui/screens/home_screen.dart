@@ -1,14 +1,13 @@
+// ignore_for_file: unused_result
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
-import '../../config/constants.dart';
 import '../../config/theme.dart';
 import '../../services/providers.dart';
 import '../../models/resbite.dart';
 import '../../models/resbite_filter.dart';
-import '../../ui/components/resbite_button.dart';
-import '../../ui/components/resbite_card.dart';
 import '../../ui/shared/empty_state.dart';
 import '../../ui/shared/loading_state.dart';
 import '../../ui/shared/toast.dart';
@@ -80,28 +79,57 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         centerTitle: true,
         automaticallyImplyLeading: false, // Remove back button and search icon
         actions: [
-          // Shadcn Demo icon
-          IconButton(
-            icon: const Icon(Icons.design_services),
-            tooltip: 'Shadcn Demo',
-            onPressed: () {
-              Navigator.of(context).pushNamed('/shadcn-demo');
-            },
+          // Notification icon with badge
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: Consumer(
+              builder: (context, ref, _) {
+                final unreadAsync = ref.watch(unreadNotificationCountProvider);
+                return InkWell(
+                  onTap:
+                      () => Navigator.of(context).pushNamed('/notifications'),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      const Icon(Icons.notifications_none),
+                      unreadAsync.when(
+                        data:
+                            (count) =>
+                                count == 0
+                                    ? const SizedBox.shrink()
+                                    : Positioned(
+                                      right: 0,
+                                      top: 2,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(2),
+                                        decoration: const BoxDecoration(
+                                          color: Colors.red,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        constraints: const BoxConstraints(
+                                          minWidth: 16,
+                                          minHeight: 16,
+                                        ),
+                                        child: Text(
+                                          count > 99 ? '99+' : '$count',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    ),
+                        loading: () => const SizedBox.shrink(),
+                        error: (_, __) => const SizedBox.shrink(),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
           ),
-
-          // Settings icon
-          IconButton(
-            icon: const Icon(Icons.settings_outlined),
-            tooltip: 'Settings',
-            onPressed: () {
-              Toast.showInfo(
-                context,
-                'Settings feature coming soon!',
-                actionLabel: 'OK',
-              );
-            },
-          ),
-
           // Profile icon in top-right
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
@@ -149,37 +177,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       ),
       body: FadeTransition(
         opacity: _fadeAnimation,
-        child: IndexedStack(
-          index: _selectedTab,
-          children: const [
-            MyResbitesTab(),
-            ActivitiesScreen(),
-            FriendsScreen(),
-          ],
-        ),
+        child: _selectedTab == 0
+            ? const MyResbitesTab()
+            : _selectedTab == 1
+                ? const ActivitiesScreen()
+                : const FriendsScreen(),
       ),
-      // Floating action button for quick resbite creation
-      floatingActionButton: TweenAnimationBuilder<double>(
-        tween: Tween(begin: 0.0, end: 1.0),
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.elasticOut,
-        builder: (context, value, child) {
-          return Transform.scale(scale: value, child: child);
-        },
-        child: FloatingActionButton(
-          onPressed: () {
-            // Add ripple animation effect before navigation
-            ScaffoldMessenger.of(context).clearSnackBars();
-            Navigator.of(context).pushNamed('/start-resbite');
-          },
-          backgroundColor: AppTheme.accentColor,
-          foregroundColor: AppTheme.darkTextColor,
-          elevation: 4,
-          tooltip: 'Create new Resbite',
-          child: const Icon(Icons.add),
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
 
       // Material Design 3 Navigation Bar
       bottomNavigationBar: NavigationBar(
@@ -226,71 +229,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   }
 
   // Build a navigation item for the custom bottom bar
-  Widget _buildNavItem({
-    required IconData icon,
-    required String label,
-    required int index,
-    bool hasBadge = false,
-  }) {
-    final bool isSelected = _selectedTab == index;
-
-    return InkWell(
-      onTap: () {
-        _changeTab(index);
-      },
-      borderRadius: BorderRadius.circular(8),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
-        decoration:
-            isSelected
-                ? BoxDecoration(
-                  color: AppTheme.primaryColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                )
-                : null,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Badge indicator if needed
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Icon(
-                  icon,
-                  size: 22,
-                  color: isSelected ? AppTheme.primaryColor : Colors.grey,
-                ),
-                if (hasBadge && !isSelected)
-                  Positioned(
-                    top: -2,
-                    right: -2,
-                    child: Container(
-                      width: 6,
-                      height: 6,
-                      decoration: BoxDecoration(
-                        color: AppTheme.accentColor,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 2),
-            Text(
-              label,
-              style: TextStyle(
-                color: isSelected ? AppTheme.primaryColor : Colors.grey,
-                fontSize: 10,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 // My Resbites Tab
@@ -399,15 +337,25 @@ class _MyResbitesTabState extends ConsumerState<MyResbitesTab>
   }
 
   Widget _buildResbitesListView({required bool upcoming}) {
-    final resbitesAsync = ref.watch(resbitesProvider(
-      ResbiteFilter(upcoming: upcoming, userId: ref.watch(currentUserProvider).valueOrNull?.id),
-    ));
+    final resbitesAsync = ref.watch(
+      resbitesProvider(
+        ResbiteFilter(
+          upcoming: upcoming,
+          userId: ref.watch(currentUserProvider).valueOrNull?.id,
+        ),
+      ),
+    );
 
     return RefreshIndicator(
       onRefresh: () async {
-        ref.refresh(resbitesProvider(
-          ResbiteFilter(upcoming: upcoming, userId: ref.watch(currentUserProvider).valueOrNull?.id),
-        ));
+        ref.refresh(
+          resbitesProvider(
+            ResbiteFilter(
+              upcoming: upcoming,
+              userId: ref.watch(currentUserProvider).valueOrNull?.id,
+            ),
+          ),
+        );
       },
       child: resbitesAsync.when(
         data: (resbites) {
@@ -462,9 +410,14 @@ class _MyResbitesTabState extends ConsumerState<MyResbitesTab>
               message:
                   'We couldn\'t load your resbites. ${error.toString().length > 50 ? '${error.toString().substring(0, 50)}...' : error.toString()}',
               onActionPressed: () {
-                ref.refresh(resbitesProvider(
-                  ResbiteFilter(upcoming: upcoming, userId: ref.watch(currentUserProvider).valueOrNull?.id),
-                ));
+                ref.refresh(
+                  resbitesProvider(
+                    ResbiteFilter(
+                      upcoming: upcoming,
+                      userId: ref.watch(currentUserProvider).valueOrNull?.id,
+                    ),
+                  ),
+                );
               },
               actionLabel: 'Try Again',
             ),
@@ -546,7 +499,6 @@ class _MyResbitesTabState extends ConsumerState<MyResbitesTab>
     );
 
     // Determine card colors based on status
-    Color cardColor = Colors.white;
     Color headerColor;
     Color contentTextColor = AppTheme.darkTextColor;
     Color separatorColor;

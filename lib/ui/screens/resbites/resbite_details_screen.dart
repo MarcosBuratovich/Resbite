@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../config/routes.dart';
 import '../../../models/resbite.dart';
 import '../../../services/providers.dart';
 import '../../../utils/logger.dart';
+import '../../dialogs/select_people_dialog.dart';
 
 class ResbiteDetailsScreen extends ConsumerWidget {
   final String resbiteId;
@@ -71,12 +73,49 @@ class ResbiteDetailsScreen extends ConsumerWidget {
             ),
             const SizedBox(width: 8),
 
+            // Invite button - using filled tonal icon button style
+            IconButton.filledTonal(
+              icon: const Icon(Icons.person_add, size: 20),
+              onPressed: () async {
+                final users = await SelectPeopleDialog.show(context, ref);
+                if (users == null || users.isEmpty) return;
+                try {
+                  final service = ref.read(resbiteServiceProvider);
+                  await service.inviteUsers(resbite.id, users.map((e) => e.id).toList());
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Invited ${users.length} people!'),
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error inviting: $e')),
+                    );
+                  }
+                }
+              },
+              tooltip: 'Invite',
+              style: IconButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+                foregroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
+              ),
+            ),
+            const SizedBox(width: 8),
+
             // Menu button (for owner) - using Material Design 3 popup styles
             if (isOwner)
               PopupMenuButton<String>(
                 onSelected: (value) {
                   if (value == 'edit') {
-                    // TODO: Navigate to edit resbite
+                    Navigator.of(context)
+                        .pushNamed(AppRoutes.editResbite, arguments: {'id': resbite.id})
+                        .then((result) {
+                      // Refresh details after editing
+                      ref.refresh(resbiteDetailProvider(resbite.id));
+                    });
                   } else if (value == 'cancel') {
                     _showCancelDialog(context, ref, resbite);
                   }
@@ -984,7 +1023,7 @@ class ResbiteDetailsScreen extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Text(
-                            '${resbite.participants.length}',
+                            '${resbite.participants.length}', // only confirmed participants now
                             style: Theme.of(context).textTheme.bodySmall
                                 ?.copyWith(
                               fontWeight: FontWeight.bold,
@@ -1509,20 +1548,18 @@ class ResbiteDetailsScreen extends ConsumerWidget {
           FilledButton(
             onPressed: () async {
               Navigator.of(context).pop();
-
-              // TODO: Implement cancel resbite functionality
-              // For now, just show a message with Material Design 3 snackbar
+              final service = ref.read(resbiteServiceProvider);
+              final success = await service.cancelResbite(resbite.id);
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: const Text(
-                      'Resbite cancellation feature coming soon',
-                    ),
+                    content: Text(success
+                        ? 'Resbite cancelled'
+                        : 'Failed to cancel resbite'),
                     behavior: SnackBarBehavior.floating,
-                    backgroundColor: Theme.of(context).colorScheme.secondary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                    backgroundColor: success
+                        ? Theme.of(context).colorScheme.errorContainer
+                        : Theme.of(context).colorScheme.error,
                   ),
                 );
               }

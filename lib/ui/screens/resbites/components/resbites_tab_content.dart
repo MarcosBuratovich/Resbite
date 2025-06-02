@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:resbite_app/services/providers.dart'; // Generic resbitesProvider
+import 'package:resbite_app/models/resbite_filter.dart';
 
-import '../../../../services/providers.dart'; // Provides resbitesProvider & currentUserProvider
 import 'empty_resbites_state.dart';
 import 'resbite_card.dart';
-import '../../../../models/resbite_filter.dart';
 
 class ResbitesTabContent extends ConsumerWidget {
   final bool upcoming;
@@ -13,20 +13,17 @@ class ResbitesTabContent extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currentUserId = ref.watch(currentUserProvider).valueOrNull?.id;
-    // Watch the appropriate resbites provider based on the 'upcoming' flag
+    // Watch the generic resbites provider with the ResbiteFilter
     final resbitesAsyncValue = ref.watch(
-      resbitesProvider(ResbiteFilter(upcoming: upcoming, userId: currentUserId)),
+      resbitesProvider(ResbiteFilter(upcoming: upcoming)),
     );
 
     return RefreshIndicator(
       onRefresh: () async {
-        // Refresh the provider
-        final _ = ref.refresh(
-          resbitesProvider(ResbiteFilter(upcoming: upcoming, userId: currentUserId)),
+        // Pull-to-refresh: refresh the FutureProvider and wait for completion
+        await ref.refresh(
+          resbitesProvider(ResbiteFilter(upcoming: upcoming)).future,
         );
-        // Optionally await the future if immediate feedback is needed, 
-        // but RefreshIndicator handles the visual state.
       },
       child: resbitesAsyncValue.when(
         data: (data) {

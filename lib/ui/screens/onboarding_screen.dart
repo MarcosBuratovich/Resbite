@@ -14,21 +14,24 @@ class OnboardingScreen extends StatefulWidget {
   State<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
-class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerProviderStateMixin {
+class _OnboardingScreenState extends State<OnboardingScreen>
+    with SingleTickerProviderStateMixin {
   final PageController _pageController = PageController();
   late AnimationController _animationController;
   int _currentPage = 0;
-  
+
   final List<Map<String, dynamic>> _onboardingData = [
     {
       'title': 'Welcome to Resbite',
-      'description': 'Find and join activities with other families in your area.',
+      'description':
+          'Find and join activities with other families in your area.',
       'image': 'assets/Resbites Illustrations/SVGs/Artboard 1.svg',
       'color': const Color(0xFF89CAC7), // Teal
     },
     {
       'title': 'Discover Activities',
-      'description': 'Browse through many family activities and pick your favorites.',
+      'description':
+          'Browse through many family activities and pick your favorites.',
       'image': 'assets/Resbites Illustrations/SVGs/Artboard 5.svg',
       'color': const Color(0xFF462748), // Purple
     },
@@ -50,7 +53,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
   void initState() {
     super.initState();
     _animationController = AnimationController(
-      vsync: this, 
+      vsync: this,
       duration: const Duration(milliseconds: 400),
     );
     // Set system UI overlay style for immersive experience
@@ -73,7 +76,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
     setState(() {
       _currentPage = page;
     });
-    
+
     // Animate when page changes
     _animationController.reset();
     _animationController.forward();
@@ -90,7 +93,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
       _completeOnboarding();
     }
   }
-  
+
   void _previousPage() {
     if (_currentPage > 0) {
       _pageController.animateToPage(
@@ -105,31 +108,27 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
     // Save onboarding completed status
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(AppConstants.prefKeyOnboardingComplete, true);
-    
+
     // Navigate to login screen
     if (!mounted) return;
-    
+
     // Add a brief animation before navigation
     await _animationController.forward();
-    
+
     Navigator.of(context).pushReplacementNamed('/login');
   }
 
   @override
   Widget build(BuildContext context) {
     // Get current page color or default to the primary color
-    final Color pageColor = _currentPage < _onboardingData.length 
-        ? _onboardingData[_currentPage]['color'] 
-        : AppTheme.primaryColor;
-    
+    final Color pageColor =
+        _currentPage < _onboardingData.length
+            ? _onboardingData[_currentPage]['color']
+            : AppTheme.primaryColor;
+
     // Determine if we're on the last page
     final bool isLastPage = _currentPage == _onboardingData.length - 1;
-    
-    // Choose text color based on background
-    final Color textColor = pageColor == AppTheme.secondaryColor 
-        ? AppTheme.lightTextColor 
-        : AppTheme.darkTextColor;
-    
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -137,22 +136,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
           children: [
             // Skip button and page indicator row
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 16.0,
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   // Back button (hidden on first page)
                   _currentPage > 0
                       ? TextButton.icon(
-                          onPressed: _previousPage,
-                          icon: const Icon(Icons.arrow_back_ios, size: 16),
-                          label: const Text('Back'),
-                          style: TextButton.styleFrom(
-                            foregroundColor: pageColor,
-                          ),
-                        )
+                        onPressed: _previousPage,
+                        icon: const Icon(Icons.arrow_back_ios, size: 16),
+                        label: const Text('Back'),
+                        style: TextButton.styleFrom(foregroundColor: pageColor),
+                      )
                       : const SizedBox(width: 80), // Placeholder for alignment
-                  
                   // Page indicator
                   Row(
                     children: List.generate(
@@ -164,14 +163,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                         height: 8,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(4),
-                          color: _currentPage == index
-                              ? pageColor
-                              : pageColor.withOpacity(0.3),
+                          color:
+                              _currentPage == index
+                                  ? pageColor
+                                  : pageColor.withOpacity(0.3),
                         ),
                       ),
                     ),
                   ),
-                  
+
                   // Skip button
                   TextButton(
                     onPressed: _completeOnboarding,
@@ -186,7 +186,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                 ],
               ),
             ),
-            
+
             // Page content
             Expanded(
               child: PageView.builder(
@@ -237,20 +237,24 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                               child: SvgPicture.asset(
                                 _onboardingData[index]['image'],
                                 // If SVG files aren't available, show a backup icon
-                                placeholderBuilder: (context) => CircularProgressIndicator(
-                                  color: _onboardingData[index]['color'],
-                                ),
+                                placeholderBuilder:
+                                    (context) => CircularProgressIndicator(
+                                      color: _onboardingData[index]['color'],
+                                    ),
                                 width: MediaQuery.of(context).size.width * 0.8,
-                                height: MediaQuery.of(context).size.height * 0.35,
+                                height:
+                                    MediaQuery.of(context).size.height * 0.35,
                               ),
                             ),
                           ),
                           const SizedBox(height: 40),
-                          
+
                           // Title
                           Text(
                             _onboardingData[index]['title'],
-                            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                            style: Theme.of(
+                              context,
+                            ).textTheme.headlineMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                               fontFamily: 'Montserrat',
                               color: _onboardingData[index]['color'],
@@ -258,13 +262,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 20),
-                          
+
                           // Description
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24.0,
+                            ),
                             child: Text(
                               _onboardingData[index]['description'],
-                              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              style: Theme.of(
+                                context,
+                              ).textTheme.bodyLarge?.copyWith(
                                 fontFamily: 'Quicksand',
                                 fontSize: 18,
                                 color: AppTheme.darkTextColor.withOpacity(0.8),
@@ -279,7 +287,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> with SingleTickerPr
                 },
               ),
             ),
-            
+
             // Next/Get Started button
             Padding(
               padding: const EdgeInsets.all(24.0),

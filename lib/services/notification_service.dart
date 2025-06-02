@@ -1,20 +1,17 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../utils/logger.dart';
-import 'providers.dart'; 
-import '../models/notification.dart'; // Import the new Notification model
-
-// TODO: Consider creating a Notification model in lib/models/notification.dart - DONE
-// and update getNotifications to return Future<List<Notification>>. - DONE
+import 'providers.dart';
+import '../models/notification.dart';
 
 class NotificationService {
-  final SupabaseClient _supabase;
+  final supabase.SupabaseClient _supabase;
 
   NotificationService(this._supabase);
 
   // Get notifications for a user
-  Future<List<Notification>> getNotifications(
+  Future<List<AppNotification>> getNotifications(
     String userId, {
     int limit = 20,
     int offset = 0,
@@ -31,23 +28,21 @@ class NotificationService {
 
       final response = await _supabase
           .from('notifications')
-          .select() // Select all fields for the Notification model
+          .select()
           .eq('user_id', userId)
-          .order('timestamp', ascending: false)
+          .order('created_at', ascending: false)
           .range(offset, offset + limit - 1);
 
-      // The response is List<dynamic> where each dynamic is Map<String, dynamic>
-      final notifications = (response as List<dynamic>)
-          .map((data) => Notification.fromJson(data as Map<String, dynamic>))
+      return (response as List<dynamic>)
+          .map((data) => AppNotification.fromJson(data as Map<String, dynamic>))
           .toList();
-      return notifications;
     } catch (e, stack) {
       AppLogger.error('Failed to get notifications', e, stack);
       return [];
     }
   }
 
-  // Mark notification as read
+  // Mark notification as read (does not change status)
   Future<void> markNotificationAsRead(String notificationId) async {
     try {
       if (notificationId.isEmpty) {
@@ -61,10 +56,10 @@ class NotificationService {
 
       await _supabase
           .from('notifications')
-          .update({'is_read': true})
+          .update({'read_at': DateTime.now().toIso8601String()})
           .eq('id', notificationId);
 
-      AppLogger.info('Marked notification as read: $notificationId'); // Changed from error to info
+      AppLogger.info('Marked notification as read: $notificationId');
     } catch (e, stack) {
       AppLogger.error('Failed to mark notification as read', e, stack);
       // Don't rethrow - non-critical operation
@@ -85,26 +80,22 @@ class NotificationService {
 
       await _supabase
           .from('notifications')
-          .update({'is_read': true})
+          .update({'read_at': DateTime.now().toIso8601String()})
           .eq('user_id', userId);
 
-      AppLogger.info('Marked all notifications as read for user: $userId'); // Changed from error to info
+      AppLogger.info('Marked all notifications as read for user: $userId');
     } catch (e, stack) {
       AppLogger.error('Failed to mark all notifications as read', e, stack);
       // Don't rethrow - non-critical operation
     }
   }
 
-  // Send a notification to a user
+  // Create notification row (generic)
   Future<void> sendNotification({
     required String userId,
-    required String title,
-    required String message,
-    required String type,
-    String? resbiteId,
-    String? activityId,
-    String? senderId,
-    String? imageUrl,
+    required NotificationType type,
+    required Map<String, dynamic> payload,
+    NotificationStatus status = NotificationStatus.pending,
   }) async {
     try {
       if (userId.isEmpty) {
@@ -118,30 +109,35 @@ class NotificationService {
 
       await _supabase.from('notifications').insert({
         'user_id': userId,
-        'title': title,
-        'message': message,
-        'timestamp': DateTime.now().toIso8601String(),
-        'type': type,
-        'resbite_id': resbiteId,
-        'activity_id': activityId,
-        'sender_id': senderId,
-        'is_read': false,
-        'image_url': imageUrl,
+        'type': type.sqlValue,
+        'payload': payload,
+        'status': status.sqlValue,
       });
 
-      AppLogger.info('Notification sent to user: $userId'); // Changed from error to info
+      AppLogger.info('Notification sent to user: $userId');
     } catch (e, stack) {
       AppLogger.error('Failed to send notification', e, stack);
       // Don't rethrow - non-critical operation
     }
   }
+
+  // Update status (accept / decline)
+  Future<void> updateStatus(String notificationId, NotificationStatus newStatus) async {
+    try {
+      await _supabase
+          .from('notifications')
+          .update({
+            'status': newStatus.sqlValue,
+            'read_at': DateTime.now().toIso8601String(),
+          })
+          .eq('id', notificationId);
+    } catch (e, st) {
+      AppLogger.error('Failed to update notification status', e, st);
+    }
+  }
 }
 
 final notificationServiceProvider = Provider<NotificationService>((ref) {
-  final supabaseClient = ref.watch(supabaseClientProvider);
+  final supabase.SupabaseClient supabaseClient = ref.watch(supabaseClientProvider);
   return NotificationService(supabaseClient);
 });
-
-// Helper provider for Supabase client (if not already globally available like this)
-// This assumes supabaseClientProvider is defined elsewhere (e.g., in services/providers.dart)
-// If not, you might need to define it or pass Supabase.instance.client directly.

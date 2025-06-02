@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' hide User;
+import '../models/notification.dart';
 
 // NOTE: Modular services should be imported directly in files that need them
 
@@ -90,10 +91,18 @@ final contactServiceProvider = Provider<ContactService>((ref) {
   return ContactService(ref);
 });
 
-// Notification service provider
-final notificationServiceProvider = Provider<NotificationService>((ref) {
-  final supabaseClient = ref.watch(supabaseClientProvider);
-  return NotificationService(supabaseClient);
+// Notifications list provider
+final notificationsProvider = FutureProvider<List<AppNotification>>((ref) async {
+  final userId = ref.watch(currentUserIdProvider);
+  if (userId == null) return [];
+  final service = ref.watch(notificationServiceProvider);
+  return service.getNotifications(userId);
+});
+
+// Unread notification count
+final unreadNotificationCountProvider = FutureProvider<int>((ref) async {
+  final list = await ref.watch(notificationsProvider.future);
+  return list.where((n) => n.readAt == null).length;
 });
 
 // UserDB service provider
@@ -132,10 +141,11 @@ final contactsProvider = FutureProvider<List<PhoneContact>>((ref) async {
   return await contactService.getContacts();
 });
 
+// Contacts on device with Resbite flag (includes users and non-users)
 final resbiteContactsProvider = FutureProvider<List<PhoneContact>>((ref) async {
   final contactService = ref.watch(contactServiceProvider);
-  final contacts = await contactService.getContacts();
-  return contacts.where((contact) => contact.isResbiteUser).toList();
+  // Fetch all contacts and mark those with Resbite accounts
+  return await contactService.getContactsWithUsers();
 });
 
 // Categories provider

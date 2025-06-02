@@ -65,7 +65,10 @@ abstract class ResbiteService {
   Future<bool> joinResbite(String resbiteId);
 
   /// Leave a resbite (remove as participant)
-  Future<bool> leaveResbite(String resbiteId);
+  Future<bool> leaveResbite(String resbiteId, String id);
+
+  /// Cancel a resbite (set status to cancelled)
+  Future<bool> cancelResbite(String resbiteId);
 
   /// Get participants of a resbite
   Future<List<User>> getParticipants(String resbiteId);
@@ -78,6 +81,9 @@ abstract class ResbiteService {
 
   /// Refresh resbites data
   Future<void> refreshResbites();
+
+  /// Invite multiple users to a resbite
+  Future<void> inviteUsers(String resbiteId, List<String> userIds);
 }
 
 /// Implementation of the ResbiteService interface
@@ -124,7 +130,8 @@ class ResbiteServiceImpl implements ResbiteService {
           .from('resbites')
           .select('*, activity(*), place(*), owner:user_id(*)')
           .eq('user_id', user.id)
-          .lte('end_date', DateTime.now().toIso8601String())
+          // Past resbites are those whose start_date is on or before NOW.
+          .lte('start_date', DateTime.now().toIso8601String())
           .order('start_date', ascending: false);
 
       return response.map((data) => Resbite.fromJson(data)).toList();
@@ -449,7 +456,7 @@ class ResbiteServiceImpl implements ResbiteService {
   }
 
   @override
-  Future<bool> leaveResbite(String resbiteId) async {
+  Future<bool> leaveResbite(String resbiteId, String userId) async {
     try {
       final supabase = _ref.read(supabaseClientProvider);
       final user = _ref.read(currentUserProvider).valueOrNull;
@@ -464,7 +471,7 @@ class ResbiteServiceImpl implements ResbiteService {
               .from('resbite_participants')
               .select('is_owner')
               .eq('resbite_id', resbiteId)
-              .eq('user_id', user.id)
+              .eq('user_id', userId)
               .maybeSingle();
 
       if (participant == null) {
@@ -512,6 +519,21 @@ class ResbiteServiceImpl implements ResbiteService {
       return true;
     } catch (e) {
       print('Error leaving resbite: $e');
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> cancelResbite(String resbiteId) async {
+    try {
+      final updated = await updateResbiteStatus(
+        resbiteId,
+        ResbiteStatus.cancelled,
+      );
+      await refreshResbites();
+      return updated != null;
+    } catch (e) {
+      print('Error cancelling resbite: $e');
       return false;
     }
   }
@@ -573,6 +595,22 @@ class ResbiteServiceImpl implements ResbiteService {
     } catch (e) {
       print('Error refreshing resbites: $e');
     }
+  }
+
+  @override
+  Future<void> inviteUsers(String resbiteId, List<String> userIds) async {
+    final supabase = _ref.read(supabaseClientProvider);
+    if (userIds.isEmpty) return;
+    final rows = [
+      for (final uid in userIds)
+        {
+          'resbite_id': resbiteId,
+          'user_id': uid,
+          'status': 'invited',
+          'joined_at': DateTime.now().toIso8601String(),
+        },
+    ];
+    await supabase.from('resbite_participants').insert(rows, defaultToNull: true);
   }
 }
 

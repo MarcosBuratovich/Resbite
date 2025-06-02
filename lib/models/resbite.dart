@@ -230,3 +230,13 @@ abstract class Resbite with _$Resbite {
     );
   }
 }
+
+extension ResbiteComputedStatus on Resbite {
+  ResbiteStatus get computedStatus {
+    if (status == ResbiteStatus.cancelled) return ResbiteStatus.cancelled;
+    final now = DateTime.now();
+    if (now.isBefore(startDate)) return ResbiteStatus.planned;
+    if (now.isBefore(endDate)) return ResbiteStatus.active;
+    return ResbiteStatus.completed;
+  }
+}

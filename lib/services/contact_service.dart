@@ -108,6 +108,69 @@ class ContactService {
     }
   }
 
+  /// Get all device contacts with Resbite user flags
+  Future<List<PhoneContact>> getContactsWithUsers() async {
+    // Fetch raw contacts
+    final contacts = await getContacts();
+    if (contacts.isEmpty) return [];
+    // Extract emails and phone numbers
+    final allEmails = <String>[];
+    final allPhones = <String>[];
+    for (var c in contacts) {
+      allEmails.addAll(c.emails.where((e) => e.isNotEmpty));
+      allPhones.addAll(c.phoneNumbers.where((p) => p.isNotEmpty).map(_normalizePhoneNumber));
+    }
+    // Lookup matching users
+    final userDbService = _ref.read(userDbServiceProvider);
+    final matchedUsers = await userDbService.findUsersByContactInfo(
+      emails: allEmails.toSet().toList(),
+      phones: allPhones.toSet().toList(),
+    );
+    // Build lookup maps
+    final Map<String, User> userByPhone = {};
+    final Map<String, User> userByEmail = {};
+    for (var u in matchedUsers) {
+      if (u.phoneNumber != null) {
+        userByPhone[_normalizePhoneNumber(u.phoneNumber!)] = u;
+      }
+      if (u.email.isNotEmpty) {
+        userByEmail[u.email.toLowerCase()] = u;
+      }
+    }
+    // Flag contacts and return
+    return contacts.map((c) {
+      User? found;
+      for (var phone in c.phoneNumbers) {
+        final norm = _normalizePhoneNumber(phone);
+        if (userByPhone.containsKey(norm)) {
+          found = userByPhone[norm];
+          break;
+        }
+      }
+      if (found == null) {
+        for (var email in c.emails) {
+          final normEmail = email.toLowerCase();
+          if (userByEmail.containsKey(normEmail)) {
+            found = userByEmail[normEmail];
+            break;
+          }
+        }
+      }
+      if (found != null) {
+        return PhoneContact(
+          id: c.id,
+          displayName: c.displayName,
+          phoneNumbers: c.phoneNumbers,
+          emails: c.emails,
+          isResbiteUser: true,
+          resbiteUserId: found.id,
+          profileImageUrl: found.profileImageUrl,
+        );
+      }
+      return c;
+    }).toList();
+  }
+
   /// Sync contacts with Resbite users database
   Future<List<User>> syncContactsWithDatabase() async {
     try {
@@ -137,10 +200,17 @@ class ContactService {
         return [];
       }
       
-      // Query database for matching users
+      // Normalize phone numbers to digits only
+      final cleanedPhones = phones
+          .map((p) => p.replaceAll(RegExp(r'\D'), ''))
+          .where((p) => p.isNotEmpty)
+          .toSet()
+          .toList();
+
+      // Query database for matching users using normalized phone numbers
       final matchedUsers = await userDbService.findUsersByContactInfo(
         emails: emails,
-        phones: phones,
+        phones: cleanedPhones,
       );
       
       // Update local contacts with the matched users info

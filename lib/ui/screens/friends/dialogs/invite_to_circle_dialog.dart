@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:resbite_app/components/ui.dart';
 import 'package:resbite_app/models/friend.dart';
+import 'package:resbite_app/models/validated_contact.dart';
 import 'package:resbite_app/styles/tailwind_theme.dart';
 import 'package:resbite_app/ui/screens/friends/services/services.dart' as friends_services;
 
@@ -14,7 +15,7 @@ class InviteToCircleDialog {
     dynamic circle,
     {
       required Function(BuildContext) showSyncContactsDialog,
-      required Function(String, String) inviteToCircle,
+      required Future<void> Function(String, ValidatedContact) inviteToCircle,
     }
   ) async {
     // In a real app, you would fetch the user's friends who aren't already in the circle
@@ -120,13 +121,27 @@ class InviteToCircleDialog {
                             initials: friend.user.displayName?.split(' ').map((e) => e.isNotEmpty ? e[0] : '').join('') ?? '',
                           ),
                           title: Text(friend.user.displayName ?? 'Friend'),
-                          trailing: ShadButton.primary(
-                            text: 'Invite',
-                            size: ButtonSize.sm,
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                              inviteToCircle(circle.id, friend.user.id);
-                            },
+                          trailing: SizedBox(
+                            width: 80,
+                            child: ShadButton.primary(
+                              text: 'Invite',
+                              size: ButtonSize.sm,
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                                inviteToCircle(
+                                  circle.id,
+                                  ValidatedContact(
+                                    id: friend.user.id,
+                                    name: friend.user.displayName ?? friend.user.id,
+                                    contactInfo: ContactInfo(
+                                      email: friend.user.email,
+                                      phone: friend.user.phoneNumber,
+                                      displayName: friend.user.displayName,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
                           ),
                         );
                       },

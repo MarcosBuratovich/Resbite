@@ -23,6 +23,7 @@ dependencies:
   
   # Supabase
   supabase_flutter: ^2.3.1
+  share_plus: ^11.0.0
   
   # State Management
   flutter_riverpod: ^2.4.9
@@ -44,7 +45,7 @@ dependencies:
   timeago: ^3.6.1
   path: ^1.9.1
   lottie: ^3.3.0
-  shadcn_ui: ^0.24.0
+  shadcn_ui: ^0.0.0
   tailwind_cli: ^0.7.7
   flutter_contacts: ^1.1.9+2
   
@@ -57,6 +58,7 @@ dev_dependencies:
   json_serializable: ^6.7.1
   flutter_launcher_icons: ^0.14.3
   flutter_native_splash: ^2.3.8
+  mocktail: ^1.0.1
 
 flutter:
   uses-material-design: true

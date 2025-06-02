@@ -5,8 +5,6 @@ import 'package:resbite_app/models/circle.dart';
 import 'package:resbite_app/services/providers.dart'; // Corrected import path
 import 'package:resbite_app/styles/tailwind_theme.dart';
 import 'package:resbite_app/ui/screens/friends/components/components.dart';
-import 'package:resbite_app/ui/screens/friends/services/services.dart'
-    as friends_services;
 import 'package:resbite_app/ui/screens/friends/tabs/tabs.dart'; // Re-added import
 // Added import for CircleService
 import 'package:resbite_app/ui/screens/friends/mixins/friends_dialog_mixin.dart';
@@ -50,14 +48,6 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
 
   @override
   Widget build(BuildContext context) {
-    final pendingInvitationsAsync = ref.watch(
-      friends_services.pendingInvitationsProvider,
-    );
-    final invitationCount = pendingInvitationsAsync.maybeWhen(
-      data: (invitations) => invitations.length,
-      orElse: () => 0,
-    );
-
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -71,29 +61,6 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
         elevation: 0,
         backgroundColor: Colors.transparent,
         actions: [
-          // Invitations button with badge for pending invitations
-          if (invitationCount > 0)
-            Container(
-              margin: const EdgeInsets.only(right: 8.0),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Badge(
-                label: Text('$invitationCount'),
-                isLabelVisible: invitationCount > 0,
-                backgroundColor: TwColors.primary,
-                child: IconButton(
-                  icon: const Icon(Icons.mail),
-                  onPressed: () {
-                    showPendingInvitationsDialog(context);
-                  },
-                  color: Theme.of(context).colorScheme.primary,
-                  tooltip: 'Pending Invitations',
-                ),
-              ),
-            ),
-
           // Add friend icon
           Container(
             margin: const EdgeInsets.only(right: 8.0),
@@ -229,10 +196,11 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
     );
   }
 
-  Widget _buildContactItem(dynamic contact, {required bool isResbiteUser}) {
+  Widget _buildContactItem(dynamic contact, {required bool isResbiteUser, bool isPending = false}) {
     return ContactItem(
       contact: contact,
       isResbiteUser: isResbiteUser,
+      isPending: isPending,
       addContactAsFriend: addContactAsFriend,
       inviteContactToApp: inviteContactToApp,
     );

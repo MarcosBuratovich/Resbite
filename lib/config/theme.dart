@@ -228,7 +228,7 @@ class AppTheme {
       shadowColor: Colors.black.withOpacity(0.15),
     ),
     // Material 3 Card Theme
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       color: surfaceLightColor,
       elevation: 0,
       shadowColor: Colors.transparent,
@@ -424,7 +424,7 @@ class AppTheme {
       side: BorderSide(width: 1.5, color: darkTextColor.withOpacity(0.5)),
     ),
     // Material 3 Tab Bar Theme
-    tabBarTheme: TabBarTheme(
+    tabBarTheme: TabBarThemeData(
       labelColor: primaryColor,
       unselectedLabelColor: darkTextColor.withOpacity(0.6),
       indicatorColor: primaryColor,
@@ -537,7 +537,7 @@ class AppTheme {
     ),
 
     // Material 3 Dialog Theme
-    dialogTheme: DialogTheme(
+    dialogTheme: DialogThemeData(
       backgroundColor: surfaceLightColor,
       elevation: 3,
       shadowColor: Colors.black.withOpacity(0.2),
@@ -746,7 +746,7 @@ class AppTheme {
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
       ),
     ),
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       color: surfaceDarkColor,
       elevation: 1.5,
       shadowColor: Colors.black.withOpacity(0.3),
@@ -860,7 +860,7 @@ class AppTheme {
       }),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4.0)),
     ),
-    tabBarTheme: TabBarTheme(
+    tabBarTheme: TabBarThemeData(
       labelColor: primaryColor,
       unselectedLabelColor: Colors.grey.shade400,
       indicatorColor: primaryColor,
@@ -912,7 +912,7 @@ class AppTheme {
       ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
     ),
-    dialogTheme: DialogTheme(
+    dialogTheme: DialogThemeData(
       backgroundColor: surfaceDarkColor,
       elevation: 8,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),

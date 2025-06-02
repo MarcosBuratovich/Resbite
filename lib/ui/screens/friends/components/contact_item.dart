@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:resbite_app/components/ui.dart';
 import 'package:resbite_app/styles/tailwind_theme.dart';
+import 'package:resbite_app/ui/shared/toast.dart';
 
 /// Component that displays a contact item in the network tab
 class ContactItem extends StatelessWidget {
   final dynamic contact;
   final bool isResbiteUser;
+  final bool isPending;
   final Function(String) addContactAsFriend;
   final Function(BuildContext, dynamic) inviteContactToApp;
 
@@ -13,6 +15,7 @@ class ContactItem extends StatelessWidget {
     super.key,
     required this.contact,
     required this.isResbiteUser,
+    this.isPending = false,
     required this.addContactAsFriend,
     required this.inviteContactToApp,
   });
@@ -24,8 +27,11 @@ class ContactItem extends StatelessWidget {
       child: InkWell(
         onTap: () {
           if (isResbiteUser) {
-            // If contact is a Resbite user, we can add them as friend
-            addContactAsFriend(contact.resbiteUserId);
+            if (isPending) {
+              Toast.showInfo(context, 'Friend request is pending.');
+            } else {
+              addContactAsFriend(contact.resbiteUserId!);
+            }
           } else {
             // If not a Resbite user, we can invite them to the app
             inviteContactToApp(context, contact);
@@ -74,12 +80,19 @@ class ContactItem extends StatelessWidget {
               
               // Action button
               isResbiteUser
-                ? ShadButton.primary(
-                    text: 'Add',
-                    onPressed: () => addContactAsFriend(contact.resbiteUserId),
-                    size: ButtonSize.sm,
-                    icon: Icons.person_add_alt,
-                  )
+                ? (isPending
+                    ? ShadButton.secondary(
+                        text: 'Pending',
+                        onPressed: () => Toast.showInfo(context, 'Friend request is pending.'),
+                        size: ButtonSize.sm,
+                        icon: Icons.hourglass_top,
+                      )
+                    : ShadButton.primary(
+                        text: 'Add',
+                        onPressed: () => addContactAsFriend(contact.resbiteUserId!),
+                        size: ButtonSize.sm,
+                        icon: Icons.person_add_alt,
+                      ))
                 : ShadButton.secondary(
                     text: 'Invite',
                     onPressed: () => inviteContactToApp(context, contact),

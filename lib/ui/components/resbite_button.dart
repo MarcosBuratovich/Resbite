@@ -1,8 +1,12 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import '../../config/theme.dart';
 
 enum ResbiteBtnType { primary, secondary, text, gradient }
+
 enum ResbiteBtnSize { small, medium, large }
+
 enum ResbiteBtnShape { rounded, pill, square }
 
 class ResbiteButton extends StatelessWidget {
@@ -40,15 +44,15 @@ class ResbiteButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Get the theme colors
-    final theme = Theme.of(context);
-    
+    Theme.of(context);
+
     // Define sizes
     double horizontalPadding;
     double verticalPadding;
     double fontSize;
     double iconSize;
     double borderRadius;
-    
+
     switch (size) {
       case ResbiteBtnSize.small:
         horizontalPadding = 12;
@@ -63,14 +67,13 @@ class ResbiteButton extends StatelessWidget {
         iconSize = 24;
         break;
       case ResbiteBtnSize.medium:
-      default:
         horizontalPadding = 16;
         verticalPadding = 12;
         fontSize = 14;
         iconSize = 20;
         break;
     }
-    
+
     // Define shape
     switch (shape) {
       case ResbiteBtnShape.pill:
@@ -80,16 +83,15 @@ class ResbiteButton extends StatelessWidget {
         borderRadius = 4; // Small value for more square corners
         break;
       case ResbiteBtnShape.rounded:
-      default:
         borderRadius = 12;
         break;
     }
-    
+
     // Define colors based on type
     Color bgColor;
     Color txtColor;
     Color? shadowColor;
-    
+
     switch (type) {
       case ResbiteBtnType.secondary:
         bgColor = Colors.transparent;
@@ -107,25 +109,24 @@ class ResbiteButton extends StatelessWidget {
         shadowColor = AppTheme.primaryColor.withOpacity(0.3);
         break;
       case ResbiteBtnType.primary:
-      default:
         bgColor = backgroundColor ?? AppTheme.primaryColor;
         txtColor = textColor ?? AppTheme.lightTextColor;
         shadowColor = AppTheme.primaryColor.withOpacity(0.3);
         break;
     }
-    
+
     // Apply custom colors if provided
     if (backgroundColor != null && type != ResbiteBtnType.gradient) {
       bgColor = backgroundColor!;
     }
-    
+
     if (textColor != null) {
       txtColor = textColor!;
     }
-    
+
     // Button content
     Widget buttonContent;
-    
+
     if (isLoading) {
       // Loading indicator
       buttonContent = SizedBox(
@@ -145,11 +146,7 @@ class ResbiteButton extends StatelessWidget {
           if (customIcon != null)
             customIcon!
           else if (icon != null)
-            Icon(
-              icon,
-              size: iconSize,
-              color: txtColor,
-            ),
+            Icon(icon, size: iconSize, color: txtColor),
           const SizedBox(width: 8),
           Text(
             text,
@@ -175,7 +172,7 @@ class ResbiteButton extends StatelessWidget {
         textAlign: TextAlign.center,
       );
     }
-    
+
     // Custom gradient button
     if (type == ResbiteBtnType.gradient) {
       return Container(
@@ -192,10 +189,12 @@ class ResbiteButton extends StatelessWidget {
             foregroundColor: Colors.transparent,
             shadowColor: Colors.transparent,
             disabledBackgroundColor: Colors.transparent,
-            padding: padding ?? EdgeInsets.symmetric(
-              horizontal: horizontalPadding,
-              vertical: verticalPadding,
-            ),
+            padding:
+                padding ??
+                EdgeInsets.symmetric(
+                  horizontal: horizontalPadding,
+                  vertical: verticalPadding,
+                ),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(borderRadius),
             ),
@@ -204,19 +203,24 @@ class ResbiteButton extends StatelessWidget {
         ),
       );
     }
-    
+
     // Button style
     ButtonStyle buttonStyle;
-    
+
     switch (type) {
       case ResbiteBtnType.secondary:
         buttonStyle = OutlinedButton.styleFrom(
           foregroundColor: txtColor,
-          side: BorderSide(color: borderColor ?? AppTheme.primaryColor, width: 1.5),
-          padding: padding ?? EdgeInsets.symmetric(
-            horizontal: horizontalPadding,
-            vertical: verticalPadding,
+          side: BorderSide(
+            color: borderColor ?? AppTheme.primaryColor,
+            width: 1.5,
           ),
+          padding:
+              padding ??
+              EdgeInsets.symmetric(
+                horizontal: horizontalPadding,
+                vertical: verticalPadding,
+              ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(borderRadius),
           ),
@@ -225,10 +229,12 @@ class ResbiteButton extends StatelessWidget {
       case ResbiteBtnType.text:
         buttonStyle = TextButton.styleFrom(
           foregroundColor: txtColor,
-          padding: padding ?? EdgeInsets.symmetric(
-            horizontal: horizontalPadding,
-            vertical: verticalPadding,
-          ),
+          padding:
+              padding ??
+              EdgeInsets.symmetric(
+                horizontal: horizontalPadding,
+                vertical: verticalPadding,
+              ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(borderRadius),
           ),
@@ -239,26 +245,27 @@ class ResbiteButton extends StatelessWidget {
         buttonStyle = ElevatedButton.styleFrom();
         break;
       case ResbiteBtnType.primary:
-      default:
         buttonStyle = ElevatedButton.styleFrom(
           backgroundColor: bgColor,
           foregroundColor: txtColor,
           elevation: 2,
           shadowColor: shadowColor,
-          padding: padding ?? EdgeInsets.symmetric(
-            horizontal: horizontalPadding,
-            vertical: verticalPadding,
-          ),
+          padding:
+              padding ??
+              EdgeInsets.symmetric(
+                horizontal: horizontalPadding,
+                vertical: verticalPadding,
+              ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(borderRadius),
           ),
         );
         break;
     }
-    
+
     // Determine which button widget to use
     Widget button;
-    
+
     switch (type) {
       case ResbiteBtnType.secondary:
         button = OutlinedButton(
@@ -279,7 +286,6 @@ class ResbiteButton extends StatelessWidget {
         button = const SizedBox();
         break;
       case ResbiteBtnType.primary:
-      default:
         button = ElevatedButton(
           onPressed: isLoading ? null : onPressed,
           style: buttonStyle,
@@ -287,15 +293,12 @@ class ResbiteButton extends StatelessWidget {
         );
         break;
     }
-    
+
     // Apply full width if needed
     if (fullWidth && type != ResbiteBtnType.gradient) {
-      return SizedBox(
-        width: double.infinity,
-        child: button,
-      );
+      return SizedBox(width: double.infinity, child: button);
     }
-    
+
     return button;
   }
 }

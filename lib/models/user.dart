@@ -25,8 +25,13 @@ abstract class User with _$User {
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
 
-  static User empty() =>
-      const User(id: '', email: '', emailVerified: false, role: 'user', dateOfBirth: null);
+  static User empty() => const User(
+    id: '',
+    email: '',
+    emailVerified: false,
+    role: 'user',
+    dateOfBirth: null,
+  );
 
   static User fromFirebase(Map<String, dynamic> json, String uid) {
     return User(
@@ -36,9 +41,10 @@ abstract class User with _$User {
       phoneNumber: json['phoneNumber'],
       profileImageUrl: json['photoUrl'] ?? json['profileImageUrl'],
       shortDescription: json['shortDescription'],
-      dateOfBirth: json['dateOfBirth'] != null
-          ? (json['dateOfBirth'] as dynamic).toDate()
-          : null,
+      dateOfBirth:
+          json['dateOfBirth'] != null
+              ? (json['dateOfBirth'] as dynamic).toDate()
+              : null,
       role: json['role'] ?? 'user',
       title: json['title'],
       emailVerified: json['emailVerified'] ?? false,
@@ -58,11 +64,15 @@ abstract class User with _$User {
     return User(
       id: json['id'] ?? '',
       email: json['email'] ?? '',
-      displayName: json['display_name'], // Supabase uses user_metadata.name or raw_user_meta_data.name
+      displayName:
+          json['display_name'], // Supabase uses user_metadata.name or raw_user_meta_data.name
       phoneNumber: json['phone_number'], // Supabase uses phone
-      profileImageUrl: json['profile_image_url'], // Supabase uses user_metadata.avatar_url or raw_user_meta_data.avatar_url
+      profileImageUrl:
+          json['profile_image_url'], // Supabase uses user_metadata.avatar_url or raw_user_meta_data.avatar_url
       shortDescription: json['short_description'],
-      role: json['role'] ?? 'user', // Supabase stores role in app_metadata.roles or a custom claim
+      role:
+          json['role'] ??
+          'user', // Supabase stores role in app_metadata.roles or a custom claim
       title: json['title'],
       emailVerified:
           true, // Supabase users are assumed to be verified through Firebase if this path is taken
@@ -87,17 +97,33 @@ abstract class User with _$User {
     return User(
       id: supabaseUser.id,
       email: supabaseUser.email ?? '',
-      displayName: userMetadata['name'] as String? ?? userMetadata['display_name'] as String? ?? supabaseUser.email?.split('@')[0],
-      phoneNumber: supabaseUser.phone ?? userMetadata['phone_number'] as String?,
-      profileImageUrl: userMetadata['avatar_url'] as String? ?? userMetadata['profile_image_url'] as String?,
+      displayName:
+          userMetadata['name'] as String? ??
+          userMetadata['display_name'] as String? ??
+          supabaseUser.email?.split('@')[0],
+      phoneNumber:
+          supabaseUser.phone ?? userMetadata['phone_number'] as String?,
+      profileImageUrl:
+          userMetadata['avatar_url'] as String? ??
+          userMetadata['profile_image_url'] as String?,
       shortDescription: userMetadata['short_description'] as String?,
       // Role might be in app_metadata or a custom claim in the JWT, adjust as needed.
       // For now, defaulting to 'user' or what's in user_metadata if you place it there.
-      role: userMetadata['role'] as String? ?? 'user', 
+      role: userMetadata['role'] as String? ?? 'user',
       title: userMetadata['title'] as String?,
-      emailVerified: supabaseUser.emailConfirmedAt != null || (userMetadata['email_verified'] as bool? ?? false),
-      createdAt: supabaseUser.createdAt != null ? DateTime.parse(supabaseUser.createdAt!) : DateTime.now(),
-      lastActive: supabaseUser.updatedAt != null ? DateTime.parse(supabaseUser.updatedAt!) : DateTime.now(), // Or lastSignInAt
+      emailVerified:
+          supabaseUser.emailConfirmedAt != null ||
+          (userMetadata['email_verified'] as bool? ?? false),
+      // ignore: unnecessary_null_comparison
+      createdAt:
+          // ignore: unnecessary_null_comparison
+          supabaseUser.createdAt != null
+              ? DateTime.parse(supabaseUser.createdAt)
+              : DateTime.now(),
+      lastActive:
+          supabaseUser.updatedAt != null
+              ? DateTime.parse(supabaseUser.updatedAt!)
+              : DateTime.now(), // Or lastSignInAt
       dateOfBirth: null, // Added dateOfBirth
     );
   }

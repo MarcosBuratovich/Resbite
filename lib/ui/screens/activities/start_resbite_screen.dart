@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import '../../dialogs/select_people_dialog.dart';
 
 import '../../../config/constants.dart';
 import '../../../config/theme.dart';
 import '../../../models/activity.dart';
 import '../../../models/resbite.dart';
-import '../../../models/resbite_filter.dart';
 import '../../../models/user.dart' as app_user;
 import '../../../services/providers.dart';
 import '../../../utils/logger.dart';
@@ -1309,13 +1309,18 @@ class _InvitationsPageState extends ConsumerState<InvitationsPage> {
                         OutlinedButton.icon(
                           icon: const Icon(Icons.add),
                           label: const Text('Add'),
-                          onPressed: () {
-                            // TODO: Show user selection dialog
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('User selection coming soon'),
-                              ),
-                            );
+                          onPressed: () async {
+                            final users = await SelectPeopleDialog.show(context, ref);
+                            if (users != null && context.mounted) {
+                              setState(() {
+                                for (final u in users) {
+                                  if (!_selectedUsers.any((s) => s.id == u.id)) {
+                                    _selectedUsers.add(u);
+                                  }
+                                }
+                              });
+                              _saveInvitationInfo();
+                            }
                           },
                         ),
                       ],
@@ -1481,14 +1486,23 @@ class _ReviewPageState extends ConsumerState<ReviewPage> {
       final createdResbite = await resbiteService.createResbite(resbite);
 
       if (createdResbite != null) {
+        // Invite selected users if any
+        final invitedUsers = resbiteData['invitedUsers'] as List<app_user.User>?;
+        if (invitedUsers != null && invitedUsers.isNotEmpty) {
+          await resbiteService.inviteUsers(
+            createdResbite.id,
+            invitedUsers.map((e) => e.id).toList(),
+          );
+        }
+
         // Show success message
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Resbite created successfully')),
           );
 
-          // Refresh resbites
-          ref.refresh(resbitesProvider(ResbiteFilter(upcoming: true)));
+          // Refresh resbites list
+          await resbiteService.refreshResbites();
 
           // Navigate to resbite details
           Navigator.of(context).pushReplacementNamed(

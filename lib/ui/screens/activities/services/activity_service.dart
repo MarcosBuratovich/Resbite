@@ -146,15 +146,6 @@ class ActivityServiceImpl implements ActivityService {
         return false;
       }
 
-      // Check if favorite exists
-      final response =
-          await supabase
-              .from('activity_favorites')
-              .select()
-              .eq('user_id', user.id)
-              .eq('activity_id', activityId)
-              .single();
-
       // Remove favorite
       await supabase
           .from('activity_favorites')

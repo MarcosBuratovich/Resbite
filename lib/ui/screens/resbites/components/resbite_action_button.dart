@@ -88,6 +88,7 @@ class LeaveButton extends ConsumerWidget {
             const SnackBar(content: Text('Successfully left resbite')),
           );
           final _ = ref.refresh(resbitesProvider(ResbiteFilter(upcoming: true, userId: userId)));
+          ref.refresh(resbiteDetailProvider(resbiteId));
         } catch (e) {
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -152,6 +153,7 @@ class JoinButton extends ConsumerWidget {
             const SnackBar(content: Text('Successfully joined resbite')),
           );
           final _ = ref.refresh(resbitesProvider(ResbiteFilter(upcoming: true, userId: user.id)));
+          ref.refresh(resbiteDetailProvider(resbiteId));
         } catch (e) {
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
