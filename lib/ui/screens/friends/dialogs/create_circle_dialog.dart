@@ -3,9 +3,9 @@ import 'package:resbite_app/components/ui.dart';
 import 'package:resbite_app/styles/tailwind_theme.dart';
 import 'package:resbite_app/ui/shared/toast.dart';
 
-/// Dialog for creating a new friend circle
+/// Dialog for creating a new group
 class CreateCircleDialog {
-  /// Shows a dialog to create a new friend circle
+  /// Shows a dialog to create a new group
   static Future<void> show(
     BuildContext context,
     Function({required String name, required String description, required bool isPrivate}) createFriendCircle,
@@ -19,7 +19,7 @@ class CreateCircleDialog {
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
           title: Text(
-            'Create Friend Circle',
+            'Create Group',
             style: TwTypography.heading6(context),
           ),
           content: Column(
@@ -27,14 +27,14 @@ class CreateCircleDialog {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Create a circle to group your friends by interests, activities, or relationships.',
+                'Create a group to organise your friends by interests, activities, or relationships.',
                 style: TwTypography.bodySm(context),
               ),
               const SizedBox(height: 16),
               
               // Name field
               ShadInput.text(
-                labelText: 'Circle Name',
+                labelText: 'Group Name',
                 hintText: 'E.g., Close Friends, Family, Sports Team',
                 controller: nameController,
               ),
@@ -59,7 +59,7 @@ class CreateCircleDialog {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Private Circle',
+                      'Private Group',
                       style: TwTypography.body(context),
                     ),
                   ),
@@ -78,8 +78,8 @@ class CreateCircleDialog {
               // Privacy explanation
               Text(
                 isPrivate
-                    ? 'Only you can add members to this circle.'
-                    : 'Members can add their friends to this circle.',
+                    ? 'Only you can add members to this group.'
+                    : 'Members can add their friends to this group.',
                 style: TwTypography.bodyXs(context).copyWith(
                   color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                 ),
@@ -94,10 +94,10 @@ class CreateCircleDialog {
               },
             ),
             ShadButton.primary(
-              text: 'Create Circle',
+              text: 'Create Group',
               onPressed: () {
                 if (nameController.text.trim().isEmpty) {
-                  Toast.showError(context, 'Please enter a circle name');
+                  Toast.showError(context, 'Please enter a group name');
                   return;
                 }
                 

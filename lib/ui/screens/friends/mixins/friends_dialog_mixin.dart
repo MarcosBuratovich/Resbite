@@ -5,11 +5,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:resbite_app/models/circle.dart';
 import 'package:resbite_app/models/validated_contact.dart';
 import 'package:resbite_app/services/providers.dart';
-import 'package:resbite_app/ui/screens/friends/dialogs/dialogs.dart';
 import 'package:resbite_app/ui/screens/friends/services/services.dart' as friends_services;
-import 'package:resbite_app/ui/shared/toast.dart';
 import 'package:uuid/uuid.dart';
 import 'package:resbite_app/ui/screens/friends/components/synced_contacts_list_dialog_content.dart';
+import 'package:resbite_app/config/routes.dart';
+import 'package:resbite_app/ui/screens/friends/dialogs/dialogs.dart';
+import 'package:resbite_app/ui/shared/toast.dart';
 
 /// Mixin that bundles all dialog–related helpers previously living inside
 /// `friends_screen.dart`. This keeps the main screen lean and focused on
@@ -63,7 +64,7 @@ mixin FriendsDialogMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
     InviteToResbiteDialog.show(context, friend);
   }
 
-  void showCreateCircleDialog(BuildContext context) {
+  void showCreateGroupDialog(BuildContext context) {
     CreateCircleDialog.show(
       context,
       ({required String name, required String description, required bool isPrivate}) =>
@@ -72,13 +73,9 @@ mixin FriendsDialogMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
   }
 
   void showCircleDetailsDialog(BuildContext context, Circle circle) {
-    CircleDetailsDialog.show(
-      context,
-      circle,
-      currentUserId: _currentUserId ?? '',
-      formatDate: _formatDate,
-      showLeaveCircleConfirmation: _showLeaveCircleConfirmation,
-      showCircleMembersDialog: showCircleMembersDialog,
+    Navigator.of(context).pushNamed(
+      AppRoutes.groupDetails,
+      arguments: {'id': circle.id},
     );
   }
 
@@ -128,10 +125,6 @@ mixin FriendsDialogMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
     RemoveFriendDialog.show(ctx, friend, (userId) => _removeFriend(userId));
   }
 
-  void _showLeaveCircleConfirmation(BuildContext ctx, dynamic circle) {
-    LeaveCircleDialog.show(ctx, circle as Circle, (circleId) => _leaveCircle(circleId));
-  }
-
   // ---------- Service wrappers ----------
   Future<void> addFriend(String userId) async {
     if (_currentUserId == null) {
@@ -173,9 +166,9 @@ mixin FriendsDialogMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
 
   Future<void> _createFriendCircle({required String name, required String description, required bool isPrivate}) async {
     try {
-      await ref.read(friends_services.circleServiceProvider).createCircle(name: name, description: description, isPrivate: isPrivate);
-      unawaited(ref.refresh(friends_services.userCirclesProvider.future));
-      Toast.showSuccess(context, 'Circle created successfully');
+      await ref.read(friends_services.groupServiceProvider).createCircle(name: name, description: description, isPrivate: isPrivate);
+      unawaited(ref.refresh(friends_services.userGroupsProvider.future));
+      Toast.showSuccess(context, 'Group created successfully');
     } catch (e) {
       Toast.showError(context, 'Failed: ${e.toString()}');
     }
@@ -183,7 +176,7 @@ mixin FriendsDialogMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
 
   Future<void> _inviteToCircle(String circleId, dynamic contact) async {
     try {
-      await ref.read(friends_services.circleServiceProvider).inviteToCircle(circleId, contact);
+      await ref.read(friends_services.groupServiceProvider).inviteToCircle(circleId, contact);
       Toast.showSuccess(context, 'Invite sent');
     } catch (e) {
       Toast.showError(context, 'Failed: ${e.toString()}');
@@ -212,8 +205,8 @@ mixin FriendsDialogMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
 
   Future<void> _leaveCircle(String circleId) async {
     try {
-      await ref.read(friends_services.circleServiceProvider).leaveCircle(circleId);
-      unawaited(ref.refresh(friends_services.userCirclesProvider.future));
+      await ref.read(friends_services.groupServiceProvider).leaveCircle(circleId);
+      unawaited(ref.refresh(friends_services.userGroupsProvider.future));
       Toast.showSuccess(context, 'Left the circle');
     } catch (e) {
       Toast.showError(context, 'Failed: ${e.toString()}');

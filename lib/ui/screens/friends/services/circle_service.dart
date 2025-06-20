@@ -103,7 +103,7 @@ class CircleServiceImpl implements CircleService {
       // Create the circle
       final result =
           await _supabase
-              .from('circles')
+              .from('groups')
               .insert({
                 'name': name,
                 'description': description,
@@ -117,8 +117,8 @@ class CircleServiceImpl implements CircleService {
       final circleId = result['id'] as String;
 
       // Add creator as a member and admin
-      await _supabase.from('circle_members').insert({
-        'circle_id': circleId,
+      await _supabase.from('group_members').insert({
+        'group_id': circleId,
         'user_id': userId,
         'role': 'admin',
         'joined_at': DateTime.now().toIso8601String(),
@@ -183,20 +183,20 @@ class CircleServiceImpl implements CircleService {
 
       // Get circles where user is a member
       final memberships = await _supabase
-          .from('circle_members')
-          .select('*, circles(*)')
+          .from('group_members')
+          .select('*, groups(*)')
           .eq('user_id', userId);
 
       // Transform to Circle objects
       return memberships.map<Circle>((membership) {
-        final circle = membership['circles'];
+        final group = membership['groups'];
         return Circle(
-          id: circle['id'],
-          name: circle['name'],
-          description: circle['description'] ?? '',
-          isPrivate: circle['is_private'] ?? true,
-          createdAt: DateTime.parse(circle['created_at']),
-          createdBy: circle['created_by'],
+          id: group['id'],
+          name: group['name'],
+          description: group['description'] ?? '',
+          isPrivate: group['is_private'] ?? true,
+          createdAt: DateTime.parse(group['created_at']),
+          createdBy: group['created_by'],
           memberIds: [], // Will be populated elsewhere as needed
           adminIds: [], // Will be populated elsewhere as needed
         );
@@ -212,9 +212,9 @@ class CircleServiceImpl implements CircleService {
     try {
       // Get members of the circle with user details
       final members = await _supabase
-          .from('circle_members')
+          .from('group_members')
           .select('*, users:user_id(*)')
-          .eq('circle_id', circleId);
+          .eq('group_id', circleId);
 
       // Transform to User objects
       return members.map<User>((member) {
@@ -239,9 +239,9 @@ class CircleServiceImpl implements CircleService {
 
       // Create a pending invitation for this user
       final inserted = await _supabase
-          .from('circle_invitations')
+          .from('group_invitations')
           .insert({
-            'circle_id': circleId,
+            'group_id': circleId,
             'inviter_user_id': userId,
             'invitee_user_id': contact.id,
             'status': 'pending',
@@ -258,7 +258,7 @@ class CircleServiceImpl implements CircleService {
           type: NotificationType.circleInvite,
           payload: {
             'invitation_id': invitationId,
-            'circle_id': circleId,
+            'group_id': circleId,
           },
         );
       }
@@ -286,7 +286,7 @@ class CircleServiceImpl implements CircleService {
       // Check if the current user is an admin or the creator of the circle
       final circleData =
           await _supabase
-              .from('circles')
+              .from('groups')
               .select('created_by')
               .eq('id', circleId)
               .single();
@@ -297,9 +297,9 @@ class CircleServiceImpl implements CircleService {
         // Creator is always an admin
         final adminCheck =
             await _supabase
-                .from('circle_members')
+                .from('group_members')
                 .select('role')
-                .eq('circle_id', circleId)
+                .eq('group_id', circleId)
                 .eq('user_id', currentUserId)
                 .single();
         isAdmin = (adminCheck['role'] == 'admin');
@@ -314,9 +314,9 @@ class CircleServiceImpl implements CircleService {
           throw Exception('Cannot remove the circle creator.');
         }
         await _supabase
-            .from('circle_members')
+            .from('group_members')
             .delete()
-            .eq('circle_id', circleId)
+            .eq('group_id', circleId)
             .eq('user_id', userIdToRemove);
       } else {
         throw Exception('User does not have permission to remove members.');
@@ -336,7 +336,7 @@ class CircleServiceImpl implements CircleService {
       // For now, just allow leaving.
       final circleData =
           await _supabase
-              .from('circles')
+              .from('groups')
               .select('created_by')
               .eq('id', circleId)
               .single();
@@ -352,9 +352,9 @@ class CircleServiceImpl implements CircleService {
       }
 
       await _supabase
-          .from('circle_members')
+          .from('group_members')
           .delete()
-          .eq('circle_id', circleId)
+          .eq('group_id', circleId)
           .eq('user_id', userId);
     } catch (e) {
       debugPrint('Error leaving circle: $e');
@@ -369,7 +369,7 @@ class CircleServiceImpl implements CircleService {
       // Ensure only creator can delete
       final circleData =
           await _supabase
-              .from('circles')
+              .from('groups')
               .select('created_by')
               .eq('id', circleId)
               .single();
@@ -377,13 +377,13 @@ class CircleServiceImpl implements CircleService {
         throw Exception('Only the creator can delete this circle.');
       }
       // Cascade delete members and invitations
-      await _supabase.from('circle_members').delete().eq('circle_id', circleId);
+      await _supabase.from('group_members').delete().eq('group_id', circleId);
       await _supabase
-          .from('circle_invitations')
+          .from('group_invitations')
           .delete()
-          .eq('circle_id', circleId);
+          .eq('group_id', circleId);
       // Delete the circle itself
-      await _supabase.from('circles').delete().eq('id', circleId);
+      await _supabase.from('groups').delete().eq('id', circleId);
     } catch (e) {
       debugPrint('Error deleting circle: $e');
       rethrow;

@@ -2,7 +2,7 @@
 
 // Core service implementations
 export 'friend_service_impl.dart'; // Core friend management
-export 'circle_service.dart'; // Circle management
+export 'circle_service.dart'; // Circle management (deprecated)
 export 'invitation_service.dart'; // Invitation management
 
 // Export all providers for components to use
@@ -13,21 +13,32 @@ export 'friend_service_impl.dart'
         directFriendsListProvider,
         pendingFriendRequestsProvider,
         networkConnectionsProvider;
-export 'circle_service.dart' show circleServiceProvider, userCirclesProvider;
+export 'group_service_impl.dart'
+    show groupServiceProvider,
+        userGroupsProvider,
+        groupMembersProvider,
+        groupDetailsProvider;
+// TEMP: re-export circle-based providers for backward compatibility
+export 'circle_service.dart'
+    show circleServiceProvider,
+        userCirclesProvider,
+        circleMembersProvider,
+        circleDetailsProvider;
 export 'invitation_service.dart'
     show invitationServiceProvider, pendingInvitationsProvider;
 
 // Compatibility layer for components still using old provider names
 import 'friend_service_impl.dart';
-import 'circle_service.dart';
+import 'group_service_impl.dart' show groupServiceProvider;
+import 'circle_service.dart'; // deprecated
 import 'invitation_service.dart';
 
-// DEPRECATED: Legacy provider aliases to maintain backward compatibility during transition
-// TODO: These should be phased out as components are updated to use the new provider names
-// Do not use these in new code - instead use the properly named providers above
+// Compatibility aliases -----------------------------------------------------
 final friendsServiceProvider = friendServiceProvider;
+final groupsServiceProvider = groupServiceProvider;
 final directFriendsProvider = directFriendsListProvider;
 final extendedNetworkProvider = networkConnectionsProvider;
+@Deprecated('Use groupsServiceProvider')
 final circlesServiceProvider = circleServiceProvider;
 final invitationsServiceProvider = invitationServiceProvider;
 

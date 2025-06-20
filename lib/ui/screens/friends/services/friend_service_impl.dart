@@ -8,8 +8,8 @@ import '../../../../models/user.dart' as app_user;
 import '../../../../models/notification.dart';
 import 'package:resbite_app/services/providers.dart' show supabaseClientProvider;
 import 'package:resbite_app/services/notification_service.dart' show notificationServiceProvider;
-import 'package:resbite_app/ui/screens/friends/services/services.dart' show circleServiceProvider, invitationServiceProvider;
-import 'package:resbite_app/ui/screens/friends/services/circle_service.dart' show CircleService;
+import 'package:resbite_app/ui/screens/friends/services/services.dart' show groupServiceProvider, invitationServiceProvider;
+import 'package:resbite_app/ui/screens/friends/services/group_service_impl.dart' show GroupService;
 import 'package:resbite_app/ui/screens/friends/services/invitation_service.dart' show InvitationService;
 import '../../../../utils/logger.dart';
 
@@ -51,7 +51,7 @@ abstract class FriendService {
     String? phone,
   });
 
-  // Circle-related methods (now delegated to CircleService)
+  // Circle-related methods (now delegated to GroupService)
   /// Invites a contact to join a circle
   Future<void> inviteToCircle(String circleId, ValidatedContact contact);
 
@@ -83,7 +83,7 @@ abstract class FriendService {
 /// Implementation of FriendService
 class FriendServiceImpl implements FriendService {
   final SupabaseClient _supabase;
-  final CircleService _circleService;
+  final GroupService _circleService;
   final InvitationService _invitationService;
   final Ref _ref;
 
@@ -556,7 +556,7 @@ class FriendServiceImpl implements FriendService {
 /// Provider for the FriendService implementation
 final friendServiceImplProvider = Provider<FriendService>((ref) {
   final supabase = ref.watch(supabaseClientProvider);
-  final circleService = ref.watch(circleServiceProvider);
+  final circleService = ref.watch(groupServiceProvider);
   final invitationService = ref.watch(invitationServiceProvider);
   return FriendServiceImpl(supabase, circleService, invitationService, ref);
 });

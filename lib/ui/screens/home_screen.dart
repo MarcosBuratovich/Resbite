@@ -11,8 +11,9 @@ import '../../models/resbite_filter.dart';
 import '../../ui/shared/empty_state.dart';
 import '../../ui/shared/loading_state.dart';
 import '../../ui/shared/toast.dart';
-import 'activities/activities_screen.dart';
 import 'friends/friends_screen.dart';
+import 'events/events_screen.dart';
+import 'events/create_event_wizard.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -23,7 +24,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen>
     with SingleTickerProviderStateMixin {
-  int _selectedTab = 1; // Default to Activities tab (middle)
+  int _selectedTab = 0; // 0 = Events, 1 = Friends ("+" is not a tab)
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
 
@@ -47,11 +48,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   }
 
   void _changeTab(int index) {
-    if (_selectedTab == index) return;
-
+    // Center index (1) is the plus action
+    if (index == 1) {
+      _openCreateEventFlow();
+      return;
+    }
+    final mapped = index > 1 ? 1 : 0; // 0 = Events, 1 = Friends
+    if (_selectedTab == mapped) return;
     setState(() {
       _animationController.reset();
-      _selectedTab = index;
+      _selectedTab = mapped;
       _animationController.forward();
     });
   }
@@ -178,35 +184,27 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       body: FadeTransition(
         opacity: _fadeAnimation,
         child: _selectedTab == 0
-            ? const MyResbitesTab()
-            : _selectedTab == 1
-                ? const ActivitiesScreen()
-                : const FriendsScreen(),
+            ? const EventsScreen()
+            : const FriendsScreen(),
       ),
 
       // Material Design 3 Navigation Bar
       bottomNavigationBar: NavigationBar(
-        selectedIndex: _selectedTab,
+        selectedIndex: _selectedTab == 0 ? 0 : 2,
         onDestinationSelected: _changeTab,
         destinations: [
-          // My Resbites tab
+          // Events tab
           NavigationDestination(
-            icon: Badge(
-              isLabelVisible: false,
-              child: Icon(Icons.event_outlined),
-            ),
-            selectedIcon: Badge(
-              isLabelVisible: false,
-              child: Icon(Icons.event),
-            ),
-            label: 'My Resbites',
+            icon: const Icon(Icons.event_outlined),
+            selectedIcon: const Icon(Icons.event),
+            label: 'Events',
           ),
 
-          // Activities tab
+          // Center + (no label)
           NavigationDestination(
-            icon: Icon(Icons.explore_outlined),
-            selectedIcon: Icon(Icons.explore),
-            label: 'Activities',
+            icon: Icon(Icons.add_circle_outline),
+            selectedIcon: Icon(Icons.add_circle),
+            label: '',
           ),
 
           // Friends tab (with badge for pending requests)
@@ -225,6 +223,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           ),
         ],
       ),
+    );
+  }
+
+  void _openCreateEventFlow() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const CreateEventWizardScreen()),
     );
   }
 

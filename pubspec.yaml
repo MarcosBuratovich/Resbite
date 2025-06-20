@@ -52,7 +52,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
   build_runner: ^2.4.7
   freezed: ^3.0.6
   json_serializable: ^6.7.1
@@ -64,8 +64,10 @@ flutter:
   uses-material-design: true
   
   assets:
-    - assets/images/
+    - assets/images/logo.svg
+    - assets/illustrations/
     - assets/animations/
+    - "assets/Resbites Illustrations/SVGs/"
     - .env
     
   fonts:

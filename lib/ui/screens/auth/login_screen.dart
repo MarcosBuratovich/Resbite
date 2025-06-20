@@ -98,12 +98,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (currentStatus == AuthStatus.authenticated) {
         AppLogger.info('Sign in successful. Navigating to home.');
         // Navigate to home screen on success
-        Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
+        Navigator.of(
+          context,
+        ).pushNamedAndRemoveUntil('/home', (route) => false);
       } else {
         // If not authenticated, it means sign-in failed (e.g. wrong credentials)
         // The error should have been caught by the try-catch block in _signIn or displayed by Supabase.
         // We can set a generic error message here if not already handled by a catch.
-        if (mounted && _errorMessage == null) { // Only set if no specific error was caught
+        if (mounted && _errorMessage == null) {
+          // Only set if no specific error was caught
           setState(() {
             _errorMessage = 'Sign-in failed. Please check your credentials.';
           });
@@ -115,8 +118,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         );
       }
     } on supabase.AuthException catch (e) {
-      AppLogger.error('Sign in failed with AuthException: ${e.message}', e,
-          StackTrace.current);
+      AppLogger.error(
+        'Sign in failed with AuthException: ${e.message}',
+        e,
+        StackTrace.current,
+      );
       setState(() {
         _errorMessage = 'Error: ${e.message}';
       });
@@ -177,7 +183,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                   // Title
                   Text(
-                    'Welcome Back',
+                    'Welcome',
                     style: TextStyle(
                       fontFamily: 'Montserrat',
                       fontSize: 28,

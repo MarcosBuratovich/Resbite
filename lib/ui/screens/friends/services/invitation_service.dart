@@ -102,25 +102,25 @@ class InvitationServiceImpl implements InvitationService {
     try {
       final userId = _requiredUserId;
 
-      // Get pending circle invitations
+      // Get pending group invitations
       final invitations = await _supabase
-          .from('circle_invitations')
-          .select('*, circles(*), users!inviter_id(*)')
+          .from('group_invitations')
+          .select('*, groups(*), users!inviter_user_id(*)')
           .eq('invitee_user_id', userId)
           .eq('status', 'pending');
 
       // Transform to Invitation objects
       return invitations.map<Invitation>((invitation) {
-        final circle = invitation['circles'];
+        final group = invitation['groups'];
         final inviter = invitation['users'];
 
         return Invitation(
           id: invitation['id'],
-          circleId: invitation['circle_id'],
-          circleName: circle['name'],
-          circleDescription: circle['description'] ?? '',
-          isCirclePrivate: circle['is_private'] ?? true,
-          inviterId: invitation['inviter_id'],
+          circleId: invitation['group_id'],
+          circleName: group['name'],
+          circleDescription: group['description'] ?? '',
+          isCirclePrivate: group['is_private'] ?? true,
+          inviterId: invitation['inviter_user_id'],
           inviterName: inviter['display_name'] ?? 'User',
           inviterImageUrl: inviter['avatar_url'],
           createdAt: DateTime.parse(invitation['created_at']),
@@ -140,15 +140,15 @@ class InvitationServiceImpl implements InvitationService {
       // Get the invitation details
       final invitation =
           await _supabase
-              .from('circle_invitations')
+              .from('group_invitations')
               .select('*')
               .eq('id', invitationId)
               .eq('invitee_user_id', userId)
               .single();
 
       // Add user to the circle
-      await _supabase.from('circle_members').insert({
-        'circle_id': invitation['circle_id'],
+      await _supabase.from('group_members').insert({
+        'group_id': invitation['group_id'],
         'user_id': userId,
         'role': 'member',
         'joined_at': DateTime.now().toIso8601String(),
@@ -156,7 +156,7 @@ class InvitationServiceImpl implements InvitationService {
 
       // Update invitation status
       await _supabase
-          .from('circle_invitations')
+          .from('group_invitations')
           .update({'status': 'accepted'})
           .eq('id', invitationId);
     } catch (e) {
@@ -172,7 +172,7 @@ class InvitationServiceImpl implements InvitationService {
 
       // Update invitation status
       await _supabase
-          .from('circle_invitations')
+          .from('group_invitations')
           .update({'status': 'declined'})
           .eq('id', invitationId)
           .eq('invitee_user_id', userId);

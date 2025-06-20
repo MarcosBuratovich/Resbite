@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:resbite_app/models/circle.dart';
-import 'package:resbite_app/ui/screens/friends/services/circle_service.dart';
+import 'package:resbite_app/ui/screens/friends/services/group_service_impl.dart';
 import 'package:resbite_app/ui/shared/loading_state.dart';
 import 'package:resbite_app/models/user.dart';
 import 'package:resbite_app/styles/tailwind_theme.dart';
@@ -45,7 +45,7 @@ class CircleMembersDialog extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final membersAsync = ref.watch(circleMembersProvider(circle.id));
+    final membersAsync = ref.watch(groupMembersProvider(circle.id));
     final bool canAddMembers =
         circle.isAdmin(currentUserId) || !circle.isPrivate;
 
@@ -62,7 +62,7 @@ class CircleMembersDialog extends ConsumerWidget {
               return const EmptyState(
                 type: EmptyStateType.empty,
                 title: 'No Members Yet',
-                message: 'Invite people to join this circle.',
+                message: 'Invite people to join this group.',
               );
             }
             return ListView.builder(
@@ -104,7 +104,7 @@ class CircleMembersDialog extends ConsumerWidget {
                 message: error.toString(),
                 actionLabel: 'Retry',
                 onActionPressed:
-                    () => ref.refresh(circleMembersProvider(circle.id)),
+                    () => ref.refresh(groupMembersProvider(circle.id)),
               ),
         ),
       ),

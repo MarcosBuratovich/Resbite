@@ -23,6 +23,8 @@ import 'category_service.dart';
 import 'activity_service.dart';
 import 'resbite_service.dart';
 // friend_service.dart was removed in the modular refactoring
+// Events feature providers
+import '../ui/screens/events/services/event_service.dart';
 
 // Re-export AuthStatus enum for use in other files
 export 'auth_service.dart' show AuthStatus;
@@ -175,6 +177,10 @@ final activityProvider = FutureProvider.family<Activity?, String>((
   // return databaseService.getActivity(activityId);
   return ref.watch(activityServiceProvider).getActivity(activityId);
 });
+
+// Events providers
+final eventsProvider = userEventsProvider;
+final eventDetailProvider = eventDetailsProvider;
 
 // Resbites providers
 final resbitesProvider = FutureProvider.family<List<Resbite>, ResbiteFilter>((ref, filter) async {

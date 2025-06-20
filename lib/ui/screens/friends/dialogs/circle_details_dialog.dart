@@ -88,7 +88,7 @@ class CircleDetailsDialog {
                 children: [
                   Expanded(
                     child: ShadButton.secondary(
-                      text: 'Edit Circle',
+                      text: 'Edit Group',
                       icon: Icons.edit,
                       onPressed: () {
                         Navigator.of(context).pop();
@@ -112,7 +112,7 @@ class CircleDetailsDialog {
             ] else ...[
               // Member section
               ShadButton.destructive(
-                text: 'Leave Circle',
+                text: 'Leave Group',
                 isFullWidth: true,
                 onPressed: () {
                   Navigator.of(context).pop();

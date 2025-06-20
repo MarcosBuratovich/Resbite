@@ -18,6 +18,7 @@ import '../ui/screens/resbites/edit_resbite_details_screen.dart';
 import '../ui/screens/resbites/manage_participants_screen.dart';
 import '../ui/screens/notifications/notification_center_screen.dart';
 import '../ui/screens/shadcn_demo_screen.dart';
+import '../ui/screens/friends/circle_details_screen.dart';
 
 class AppRoutes {
   // Route names
@@ -37,6 +38,9 @@ class AppRoutes {
   static const String manageParticipants = '/resbites/manage';
   static const String notifications = '/notifications';
   static const String shadcnDemo = '/shadcn-demo';
+  @Deprecated('Use groupDetails instead')
+  static const String circleDetails = '/circle/details';
+  static const String groupDetails = '/group/details';
   
   // Route generation
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -97,6 +101,17 @@ class AppRoutes {
         return MaterialPageRoute(builder: (_) => const NotificationCenterScreen());
       case shadcnDemo:
         return MaterialPageRoute(builder: (_) => const ShadcnDemoScreen());
+      case groupDetails:
+        final String groupId = args is Map ? args['id'] : '';
+        return MaterialPageRoute(
+          builder: (_) => CircleDetailsScreen(circleId: groupId),
+        );
+      case circleDetails:
+        // Check if args is a Map with id
+        final String circleId = args is Map ? args['id'] : '';
+        return MaterialPageRoute(
+          builder: (_) => CircleDetailsScreen(circleId: circleId),
+        );
       default:
         // If route not found, return 404 error page
         return MaterialPageRoute(

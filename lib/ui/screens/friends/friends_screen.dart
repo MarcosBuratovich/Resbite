@@ -51,7 +51,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Friends & Circles',
+          'Friends & Groups',
           style: TwTypography.heading6(context).copyWith(
             color: Theme.of(context).colorScheme.primary,
             fontWeight: FontWeight.bold,
@@ -81,11 +81,11 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          showCreateCircleDialog(context);
+          showCreateGroupDialog(context);
         },
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
-        tooltip: 'Create Friend Circle',
+        tooltip: 'Create Group',
         child: const Icon(Icons.group_add),
       ),
       body: Column(
@@ -94,7 +94,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
             child: ShadInput.text(
-              hintText: 'Search friends, circles, or contacts...',
+              hintText: 'Search friends, groups, or contacts...',
               controller: _searchController,
               prefixIcon: const Icon(Icons.search),
               suffixIcon:
@@ -125,7 +125,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
               controller: _tabController,
               tabs: const [
                 Tab(text: 'My Friends'),
-                Tab(text: 'Circles'),
+                Tab(text: 'Groups'),
                 Tab(text: 'Network'),
               ],
               labelColor: Theme.of(context).colorScheme.primary,
@@ -155,11 +155,11 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen>
                   buildFriendItem: _buildFriendItem,
                 ),
 
-                // Circles Tab - using refactored widget
-                CirclesTab(
+                // Groups Tab - using refactored widget
+                GroupsTab(
                   searchQuery: _searchQuery,
-                  showCreateCircleDialog: showCreateCircleDialog,
-                  buildCircleItem: _buildCircleItem,
+                  showCreateGroupDialog: showCreateGroupDialog,
+                  buildCircleWidget: _buildCircleItem,
                 ),
 
                 // Extended Network Tab - using refactored widget

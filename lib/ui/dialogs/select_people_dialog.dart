@@ -51,7 +51,7 @@ class _SelectPeopleDialogContentState extends ConsumerState<_SelectPeopleDialogC
   Future<void> _loadCircles() async {
     try {
       final circles = await widget.ref
-          .read(friends_services.circleServiceProvider)
+          .read(friends_services.groupServiceProvider)
           .getUserCircles();
       setState(() {
         _circles = circles;
@@ -92,7 +92,7 @@ class _SelectPeopleDialogContentState extends ConsumerState<_SelectPeopleDialogC
     setState(() => _loadingCircles = true);
     try {
       final members = await widget.ref
-          .read(friends_services.circleServiceProvider)
+          .read(friends_services.groupServiceProvider)
           .getCircleMembers(circle.id as String);
       for (final member in members) {
         _toggleUser(member, true);
