@@ -5,7 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:resbite_app/models/circle.dart';
 import 'package:resbite_app/models/validated_contact.dart';
 import 'package:resbite_app/services/providers.dart';
-import 'package:resbite_app/ui/screens/friends/services/services.dart' as friends_services;
+import 'package:resbite_app/ui/screens/friends/services/services.dart'
+    as friends_services;
 import 'package:uuid/uuid.dart';
 import 'package:resbite_app/ui/screens/friends/components/synced_contacts_list_dialog_content.dart';
 import 'package:resbite_app/config/routes.dart';
@@ -67,16 +68,22 @@ mixin FriendsDialogMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
   void showCreateGroupDialog(BuildContext context) {
     CreateCircleDialog.show(
       context,
-      ({required String name, required String description, required bool isPrivate}) =>
-          _createFriendCircle(name: name, description: description, isPrivate: isPrivate),
+      ({
+        required String name,
+        required String description,
+        required bool isPrivate,
+      }) => _createFriendCircle(
+        name: name,
+        description: description,
+        isPrivate: isPrivate,
+      ),
     );
   }
 
   void showCircleDetailsDialog(BuildContext context, Circle circle) {
-    Navigator.of(context).pushNamed(
-      AppRoutes.groupDetails,
-      arguments: {'id': circle.id},
-    );
+    Navigator.of(
+      context,
+    ).pushNamed(AppRoutes.groupDetails, arguments: {'id': circle.id});
   }
 
   void showCircleMembersDialog(BuildContext context, Circle circle) {
@@ -100,7 +107,10 @@ mixin FriendsDialogMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
   }
 
   // ---------- Internal (private) helpers ----------
-  void _showContactSyncResultsDialog(BuildContext ctx, List<ValidatedContact> contacts) {
+  void _showContactSyncResultsDialog(
+    BuildContext ctx,
+    List<ValidatedContact> contacts,
+  ) {
     if (contacts.isEmpty) {
       Toast.showInfo(ctx, 'No new contacts found to sync.');
       return;
@@ -110,9 +120,15 @@ mixin FriendsDialogMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
         contacts.where((c) => Uuid.isValidUUID(fromString: c.id)).length;
 
     if (resbiteUserCount > 0) {
-      Toast.showSuccess(ctx, 'Found $resbiteUserCount contact(s) already using Resbite!');
+      Toast.showSuccess(
+        ctx,
+        'Found $resbiteUserCount contact(s) already using Resbite!',
+      );
     } else {
-      Toast.showInfo(ctx, 'Found ${contacts.length} contact(s). Invite them to Resbite!');
+      Toast.showInfo(
+        ctx,
+        'Found ${contacts.length} contact(s). Invite them to Resbite!',
+      );
     }
 
     showDialog(
@@ -146,7 +162,9 @@ mixin FriendsDialogMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
       return;
     }
     try {
-      await ref.read(friends_services.friendServiceProvider).addFriend(resbiteUserId);
+      await ref
+          .read(friends_services.friendServiceProvider)
+          .addFriend(resbiteUserId);
       unawaited(ref.refresh(friends_services.directFriendsProvider.future));
       Toast.showSuccess(context, 'Friend added successfully');
     } catch (e) {
@@ -156,7 +174,9 @@ mixin FriendsDialogMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
 
   Future<void> _removeFriend(String userId) async {
     try {
-      await ref.read(friends_services.friendServiceProvider).removeFriend(userId);
+      await ref
+          .read(friends_services.friendServiceProvider)
+          .removeFriend(userId);
       unawaited(ref.refresh(friends_services.directFriendsProvider.future));
       Toast.showSuccess(context, 'Friend removed');
     } catch (e) {
@@ -164,9 +184,19 @@ mixin FriendsDialogMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
     }
   }
 
-  Future<void> _createFriendCircle({required String name, required String description, required bool isPrivate}) async {
+  Future<void> _createFriendCircle({
+    required String name,
+    required String description,
+    required bool isPrivate,
+  }) async {
     try {
-      await ref.read(friends_services.groupServiceProvider).createCircle(name: name, description: description, isPrivate: isPrivate);
+      await ref
+          .read(friends_services.groupServiceProvider)
+          .createCircle(
+            name: name,
+            description: description,
+            isPrivate: isPrivate,
+          );
       unawaited(ref.refresh(friends_services.userGroupsProvider.future));
       Toast.showSuccess(context, 'Group created successfully');
     } catch (e) {
@@ -176,7 +206,9 @@ mixin FriendsDialogMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
 
   Future<void> _inviteToCircle(String circleId, dynamic contact) async {
     try {
-      await ref.read(friends_services.groupServiceProvider).inviteToCircle(circleId, contact);
+      await ref
+          .read(friends_services.groupServiceProvider)
+          .inviteToCircle(circleId, contact);
       Toast.showSuccess(context, 'Invite sent');
     } catch (e) {
       Toast.showError(context, 'Failed: ${e.toString()}');
@@ -185,8 +217,12 @@ mixin FriendsDialogMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
 
   Future<void> _acceptInvitation(String invitationId) async {
     try {
-      await ref.read(friends_services.invitationServiceProvider).acceptInvitation(invitationId);
-      unawaited(ref.refresh(friends_services.pendingInvitationsProvider.future));
+      await ref
+          .read(friends_services.invitationServiceProvider)
+          .acceptInvitation(invitationId);
+      unawaited(
+        ref.refresh(friends_services.pendingInvitationsProvider.future),
+      );
       Toast.showSuccess(context, 'Invitation accepted');
     } catch (e) {
       Toast.showError(context, 'Failed: ${e.toString()}');
@@ -195,19 +231,13 @@ mixin FriendsDialogMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
 
   Future<void> _declineInvitation(String invitationId) async {
     try {
-      await ref.read(friends_services.invitationServiceProvider).declineInvitation(invitationId);
-      unawaited(ref.refresh(friends_services.pendingInvitationsProvider.future));
+      await ref
+          .read(friends_services.invitationServiceProvider)
+          .declineInvitation(invitationId);
+      unawaited(
+        ref.refresh(friends_services.pendingInvitationsProvider.future),
+      );
       Toast.showSuccess(context, 'Invitation declined');
-    } catch (e) {
-      Toast.showError(context, 'Failed: ${e.toString()}');
-    }
-  }
-
-  Future<void> _leaveCircle(String circleId) async {
-    try {
-      await ref.read(friends_services.groupServiceProvider).leaveCircle(circleId);
-      unawaited(ref.refresh(friends_services.userGroupsProvider.future));
-      Toast.showSuccess(context, 'Left the circle');
     } catch (e) {
       Toast.showError(context, 'Failed: ${e.toString()}');
     }
@@ -233,8 +263,10 @@ mixin FriendsDialogMixin<T extends ConsumerStatefulWidget> on ConsumerState<T> {
     if (difference.inDays < 1) return 'Today';
     if (difference.inDays < 2) return 'Yesterday';
     if (difference.inDays < 7) return '${difference.inDays} days ago';
-    if (difference.inDays < 30) return '${(difference.inDays / 7).floor()} weeks ago';
-    if (difference.inDays < 365) return '${(difference.inDays / 30).floor()} months ago';
+    if (difference.inDays < 30)
+      return '${(difference.inDays / 7).floor()} weeks ago';
+    if (difference.inDays < 365)
+      return '${(difference.inDays / 30).floor()} months ago';
     return '${(difference.inDays / 365).floor()} years ago';
   }
 }
